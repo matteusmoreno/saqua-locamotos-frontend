@@ -1,0 +1,25 @@
+.contract-form-summary {
+  background: var(--primary-bg);
+  border: 1px solid rgba(255, 195, 14, 0.3);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-top: 8px;
+  grid-column: 1 / -1;
+}
+
+.contract-form-summary h4 {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+  margin-bottom: 6px;
+}
+
+.contract-form-summary p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.contract-form-summary strong {
+  color: var(--text-primary);
+}

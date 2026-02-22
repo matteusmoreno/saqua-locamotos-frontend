@@ -1,0 +1,121 @@
+.moto-status-available {
+  color: var(--success);
+}
+
+.moto-status-rented {
+  color: var(--warning);
+}
+
+.moto-status-inactive {
+  color: var(--danger);
+}
+
+/* Motorcycle cards for mobile */
+.moto-cards {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.moto-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.moto-card:active {
+  transform: scale(0.98);
+}
+
+.moto-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  background: var(--primary-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--primary-dark);
+  flex-shrink: 0;
+}
+
+.moto-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.moto-card-info h4 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.moto-card-info p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.moto-card-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Filters */
+.filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 2px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.filter-chip:hover {
+  border-color: var(--primary);
+}
+
+.filter-chip.active {
+  background: var(--primary);
+  color: var(--bg-sidebar);
+  border-color: var(--primary);
+}
+
+@media (max-width: 768px) {
+  .table-container {
+    display: none;
+  }
+
+  .moto-cards {
+    display: flex;
+  }
+
+  .filters-bar {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+}

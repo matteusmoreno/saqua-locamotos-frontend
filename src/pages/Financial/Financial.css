@@ -1,0 +1,383 @@
+/* ======== FINANCIAL DASHBOARD ======== */
+.financial-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* KPI Grid */
+.fin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.fin-kpi-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.fin-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.fin-kpi-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.fin-kpi-card.success .fin-kpi-icon { background: var(--success-bg); color: var(--success); }
+.fin-kpi-card.warning .fin-kpi-icon { background: var(--warning-bg); color: var(--warning); }
+.fin-kpi-card.danger .fin-kpi-icon  { background: var(--danger-bg);  color: var(--danger); }
+.fin-kpi-card.amber .fin-kpi-icon   { background: var(--primary-bg); color: var(--primary); }
+
+.fin-kpi-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.fin-kpi-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.fin-kpi-value {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  line-height: 1.3;
+}
+
+/* Status bar */
+.fin-status-bar {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding: 14px 20px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.fin-status-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.fin-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.fin-status-dot.active   { background: var(--success); }
+.fin-status-dot.overdue  { background: var(--warning); }
+.fin-status-dot.finished { background: var(--info); }
+.fin-status-dot.total    { background: var(--text-muted); }
+
+/* Grid layout */
+.fin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Sections */
+.fin-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.fin-section-full {
+  width: 100%;
+}
+
+.fin-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.fin-section-header h2 {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Moto revenue list */
+.fin-moto-list {
+  padding: 8px 0;
+}
+
+.fin-moto-item {
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.fin-moto-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.fin-moto-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.fin-moto-rank {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 26px;
+}
+
+.fin-moto-label {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fin-moto-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--success);
+  white-space: nowrap;
+}
+
+.fin-moto-bar-bg {
+  height: 6px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.fin-moto-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+  border-radius: var(--radius-full);
+  transition: width 0.5s ease;
+}
+
+/* Overdue list */
+.fin-overdue-list {
+  list-style: none;
+}
+
+.fin-overdue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.fin-overdue-item:last-child {
+  border-bottom: none;
+}
+
+.fin-overdue-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.fin-overdue-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fin-overdue-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--danger-bg);
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.fin-overdue-left h4 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.fin-overdue-left p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.fin-overdue-amount {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--danger);
+  white-space: nowrap;
+}
+
+/* Payments list */
+.fin-payments-list {
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.fin-payment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.fin-payment-item:last-child {
+  border-bottom: none;
+}
+
+.fin-payment-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.fin-payment-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.fin-payment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--success-bg);
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+
+.fin-payment-left h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.fin-payment-left p {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 360px;
+}
+
+.fin-payment-amount {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--success);
+  white-space: nowrap;
+}
+
+/* Empty state (inside fin-section) */
+.fin-section .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.fin-section .empty-state svg {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+.fin-section .empty-state p {
+  font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .fin-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .fin-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .fin-kpi-card {
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .fin-kpi-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .fin-kpi-value {
+    font-size: 1.2rem;
+  }
+
+  .fin-status-bar {
+    gap: 16px;
+    padding: 12px 16px;
+  }
+
+  .fin-payment-left p {
+    max-width: 180px;
+  }
+}

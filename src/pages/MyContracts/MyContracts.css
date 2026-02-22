@@ -1,0 +1,241 @@
+/* ========================================
+   My Contracts – Customer View
+   ======================================== */
+
+.my-contracts {
+  padding: 24px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.my-contracts-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 16px;
+  color: var(--text-muted);
+}
+
+/* ---- Page Header ---- */
+.mc-page-header {
+  margin-bottom: 28px;
+}
+
+.mc-page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.mc-page-header p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* ---- Empty State ---- */
+.mc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  text-align: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.mc-empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--primary-bg);
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 16px;
+}
+
+.mc-empty h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.mc-empty p {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* ---- Contract Cards ---- */
+.mc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mc-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.mc-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 4px 0 0 4px;
+}
+
+.mc-card.status-ACTIVE::before { background: var(--success); }
+.mc-card.status-FINISHED::before { background: var(--info); }
+.mc-card.status-CANCELLED::before { background: var(--danger); }
+.mc-card.status-OVERDUE::before { background: var(--warning); }
+
+.mc-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  border-color: var(--primary);
+}
+
+.mc-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.mc-card-type {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mc-card-type-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  background: var(--primary-bg);
+  color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.mc-card-type-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mc-card-type-info span {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.mc-card-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ---- Card Details Grid ---- */
+.mc-card-details {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+.mc-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mc-detail-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.mc-detail-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ---- Moto Info Row ---- */
+.mc-card-moto {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  background: var(--bg-main);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.mc-card-moto svg {
+  color: var(--text-muted);
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.mc-card-moto strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .my-contracts {
+    padding: 16px;
+  }
+
+  .mc-card {
+    padding: 18px;
+  }
+
+  .mc-card-details {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .mc-card-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mc-card-details {
+    grid-template-columns: 1fr;
+  }
+}

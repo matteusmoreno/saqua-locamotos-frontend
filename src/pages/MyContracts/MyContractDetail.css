@@ -1,0 +1,400 @@
+/* ========================================
+   My Contract Detail – Customer Read-Only
+   ======================================== */
+
+.my-contract-detail {
+  padding: 24px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.mcd-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  gap: 16px;
+  color: var(--text-muted);
+}
+
+/* ---- Back Link ---- */
+.mcd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 0;
+  margin-bottom: 20px;
+  transition: var(--transition);
+}
+
+.mcd-back:hover {
+  color: var(--primary-dark);
+}
+
+/* ---- Contract Header ---- */
+.mcd-header {
+  background: linear-gradient(135deg, #111827, #1e293b);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.mcd-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(255, 195, 14, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(30%, -30%);
+}
+
+.mcd-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.mcd-header h1 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mcd-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.mcd-header-sub {
+  font-size: 0.9rem;
+  color: #94A3B8;
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Amount Boxes ---- */
+.mcd-amounts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.mcd-amount-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: center;
+}
+
+.mcd-amount-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.mcd-amount-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.mcd-amount-value.success { color: var(--success); }
+.mcd-amount-value.warning { color: var(--warning); }
+.mcd-amount-value.danger { color: var(--danger); }
+.mcd-amount-value.info { color: var(--info); }
+
+/* ---- Moto Info Card ---- */
+.mcd-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.mcd-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mcd-card-header svg {
+  color: var(--primary-dark);
+  font-size: 1.1rem;
+}
+
+.mcd-card-body {
+  padding: 20px 24px;
+}
+
+.mcd-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.mcd-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mcd-info-item.full {
+  grid-column: 1 / -1;
+}
+
+.mcd-info-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.mcd-info-value {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ---- Payments List ---- */
+.mcd-payments-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.mcd-payment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border-light);
+  transition: var(--transition);
+}
+
+.mcd-payment-row:last-child {
+  border-bottom: none;
+}
+
+.mcd-payment-row:hover {
+  background: var(--bg-card-hover);
+}
+
+.mcd-payment-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mcd-payment-period {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mcd-payment-date {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.mcd-payment-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.mcd-payment-amount {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.mcd-payment-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ---- Fines List ---- */
+.mcd-fine-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.mcd-fine-row:last-child {
+  border-bottom: none;
+}
+
+.mcd-fine-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mcd-fine-reason {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.mcd-fine-date {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.mcd-fine-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mcd-fine-amount {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--danger);
+}
+
+.mcd-fine-paid {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background: var(--success-bg);
+  color: var(--success);
+}
+
+.mcd-fine-unpaid {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* ---- Contract File ---- */
+.mcd-contract-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--info);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.mcd-contract-link:hover {
+  text-decoration: underline;
+}
+
+.mcd-no-file {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+/* ---- Empty Sections ---- */
+.mcd-empty-section {
+  padding: 32px 24px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .my-contract-detail {
+    padding: 16px;
+  }
+
+  .mcd-header {
+    padding: 22px 18px;
+  }
+
+  .mcd-header h1 {
+    font-size: 1.15rem;
+  }
+
+  .mcd-amounts {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .mcd-info-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .mcd-payment-row,
+  .mcd-fine-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .mcd-payment-right,
+  .mcd-fine-right {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .mcd-amounts {
+    grid-template-columns: 1fr;
+  }
+}

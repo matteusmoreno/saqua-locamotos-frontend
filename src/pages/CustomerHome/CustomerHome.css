@@ -1,0 +1,457 @@
+/* ======== CUSTOMER HOME – Dashboard with real data ======== */
+.ch-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Greeting */
+.ch-greeting {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ch-greeting-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--primary-bg);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.ch-greeting h1 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+
+.ch-greeting p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Stats */
+.ch-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.ch-stat-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.ch-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.ch-stat-card svg {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.ch-stat-card.success svg { color: var(--success); }
+.ch-stat-card.warning svg { color: var(--warning); }
+.ch-stat-card.danger svg  { color: var(--danger); }
+.ch-stat-card.amber svg   { color: var(--primary); }
+
+.ch-stat-value {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.ch-stat-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Alert */
+.ch-alert {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: var(--radius-md);
+  border: 1px solid;
+}
+
+.ch-alert.warning {
+  background: var(--warning-bg);
+  border-color: rgba(251, 191, 36, 0.25);
+}
+
+.ch-alert.danger {
+  background: var(--danger-bg);
+  border-color: rgba(248, 113, 113, 0.25);
+}
+
+.ch-alert-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.ch-alert.warning .ch-alert-icon { color: var(--warning); }
+.ch-alert.danger .ch-alert-icon  { color: var(--danger); }
+
+.ch-alert-content h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.ch-alert-content p {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+/* Grid */
+.ch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Sections */
+.ch-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.ch-section-full {
+  width: 100%;
+}
+
+.ch-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ch-section-header h2 {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ch-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.ch-view-all:hover {
+  background: var(--primary-bg);
+}
+
+/* Contract card */
+.ch-contract-card {
+  padding: 20px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.ch-contract-card:hover {
+  background: var(--bg-card-hover);
+}
+
+.ch-contract-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ch-contract-moto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ch-moto-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius);
+  background: var(--primary-bg);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.ch-moto-icon.small {
+  width: 34px;
+  height: 34px;
+  font-size: 0.95rem;
+}
+
+.ch-contract-moto h4 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ch-contract-moto p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.ch-contract-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-light);
+}
+
+.ch-contract-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ch-contract-detail .label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.ch-contract-detail .value {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ch-contract-detail .value.highlight {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+/* Profile card */
+.ch-profile-card {
+  padding: 8px 0;
+}
+
+.ch-profile-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.ch-profile-row:last-child {
+  border-bottom: none;
+}
+
+.ch-profile-row > svg {
+  margin-top: 2px;
+  font-size: 1rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.ch-profile-row .label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 1px;
+}
+
+.ch-profile-row .value {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+/* Payments */
+.ch-payments {
+  padding: 8px 0;
+}
+
+.ch-payment-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-light);
+  transition: var(--transition);
+}
+
+.ch-payment-item:last-child {
+  border-bottom: none;
+}
+
+.ch-payment-status-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.ch-payment-item.paid .ch-payment-status-icon { color: var(--success); }
+.ch-payment-item.pending .ch-payment-status-icon { color: var(--warning); }
+.ch-payment-item.overdue .ch-payment-status-icon { color: var(--danger); }
+
+.ch-payment-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ch-payment-info h4 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ch-payment-info p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Past contracts */
+.ch-past-contracts {
+  padding: 4px 0;
+}
+
+.ch-past-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.ch-past-item:last-child {
+  border-bottom: none;
+}
+
+.ch-past-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.ch-past-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ch-past-left h4 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ch-past-left p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Empty */
+.ch-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.ch-empty svg {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+.ch-empty p {
+  font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .ch-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .ch-stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .ch-stat-card {
+    padding: 14px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .ch-greeting h1 {
+    font-size: 1.2rem;
+  }
+
+  .ch-contract-details {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ch-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
