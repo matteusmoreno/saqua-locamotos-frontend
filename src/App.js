@@ -5,6 +5,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/Layout/Layout';
 import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import Landing from './pages/Landing/Landing';
+import PlanMensal from './pages/Plans/PlanMensal';
+import PlanQuinzenal from './pages/Plans/PlanQuinzenal';
 import Dashboard from './pages/Dashboard/Dashboard';
 import CustomerList from './pages/Customers/CustomerList';
 import CustomerForm from './pages/Customers/CustomerForm';
@@ -36,11 +38,13 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* Public landing – only when NOT authenticated */}
+      {/* Public pages */}
       <Route
         path="/"
         element={isAuthenticated ? <Navigate to="/painel" replace /> : <Landing />}
       />
+      <Route path="/planos/mensal" element={<PlanMensal />} />
+      <Route path="/planos/quinzenal" element={<PlanQuinzenal />} />
 
       {/* Authenticated area */}
       <Route
