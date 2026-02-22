@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import contractService from '../../services/contractService';
+import paymentService from '../../services/paymentService';
 import {
   formatCurrency,
   formatDate,
@@ -27,6 +28,7 @@ function MyContractDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [contract, setContract] = useState(null);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,6 +40,8 @@ function MyContractDetail() {
     try {
       const data = await contractService.findById(id);
       setContract(data);
+      const paymentData = await paymentService.findByContractId(id);
+      setPayments(Array.isArray(paymentData) ? paymentData : []);
     } catch {
       console.error('Erro ao carregar contrato');
       navigate('/meus-contratos');
@@ -59,7 +63,6 @@ function MyContractDetail() {
 
   if (!contract) return null;
 
-  const payments = contract.payments || [];
   const fines = contract.fines || [];
   const moto = contract.motorcycle;
 

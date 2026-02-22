@@ -73,6 +73,12 @@ export const PAYMENT_METHOD_LABELS = {
   CARD: 'Cartão',
 };
 
+export const PAYMENT_TYPE_LABELS = {
+  DEPOSIT: 'Caução / Depósito',
+  WEEKLY: 'Pagamento Semanal',
+  FULL_PAYMENT: 'Pagamento Integral (15 dias)',
+};
+
 export function getStatusColor(status) {
   const colors = {
     ACTIVE: 'var(--success)',

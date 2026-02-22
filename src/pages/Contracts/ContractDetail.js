@@ -2,14 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   FiArrowLeft, FiFileText, FiUser, FiTruck, FiDollarSign,
-  FiAlertTriangle, FiCheck, FiX, FiUpload, FiCheckCircle
+  FiAlertTriangle, FiCheck, FiX, FiUpload, FiCheckCircle, FiPlus, FiTrash2,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import contractService from '../../services/contractService';
+import paymentService from '../../services/paymentService';
 import {
   formatCurrency, formatDate, formatDateTime,
   CONTRACT_STATUS_LABELS, RENTAL_TYPE_LABELS,
-  PAYMENT_STATUS_LABELS, PAYMENT_METHOD_LABELS,
+  PAYMENT_STATUS_LABELS, PAYMENT_METHOD_LABELS, PAYMENT_TYPE_LABELS,
   getStatusColor, getStatusBgColor
 } from '../../utils/formatters';
 import './ContractDetail.css';
@@ -32,6 +33,11 @@ function ContractDetail() {
   // Payment method selection
   const [paymentMethods, setPaymentMethods] = useState({});
 
+  // Payments (separate entity)
+  const [payments, setPayments] = useState([]);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentForm, setPaymentForm] = useState({ type: '', amount: '', dueDate: '', description: '' });
+
   useEffect(() => {
     loadContract();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -41,6 +47,8 @@ function ContractDetail() {
     try {
       const data = await contractService.findById(id);
       setContract(data);
+      const paymentData = await paymentService.findByContractId(id);
+      setPayments(Array.isArray(paymentData) ? paymentData : []);
     } catch {
       toast.error('Erro ao carregar contrato');
       navigate('/painel');
@@ -49,11 +57,15 @@ function ContractDetail() {
     }
   };
 
-  /** Silently re-fetches the full contract after a mutation */
+  /** Silently re-fetches the full contract and payments after a mutation */
   const refreshContract = async () => {
     try {
-      const data = await contractService.findById(id);
+      const [data, paymentData] = await Promise.all([
+        contractService.findById(id),
+        paymentService.findByContractId(id),
+      ]);
       setContract(data);
+      setPayments(Array.isArray(paymentData) ? paymentData : []);
     } catch {
       toast.error('Erro ao atualizar contrato');
     }
@@ -66,15 +78,41 @@ function ContractDetail() {
       return;
     }
     try {
-      await contractService.registerPayment({
-        contractId: id,
-        paymentId,
-        method,
-      });
+      await paymentService.registerPayment({ paymentId, method });
       await refreshContract();
       toast.success('Pagamento registrado!');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Erro ao registrar pagamento');
+    }
+  };
+
+  const handleCreatePayment = async (e) => {
+    e.preventDefault();
+    try {
+      await paymentService.create({
+        contractId: id,
+        type: paymentForm.type,
+        amount: parseFloat(paymentForm.amount),
+        dueDate: paymentForm.dueDate,
+        description: paymentForm.description || undefined,
+      });
+      await refreshContract();
+      setShowPaymentModal(false);
+      setPaymentForm({ type: '', amount: '', dueDate: '', description: '' });
+      toast.success('Pagamento criado!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Erro ao criar pagamento');
+    }
+  };
+
+  const handleDeletePayment = async (paymentId) => {
+    if (!window.confirm('Remover este pagamento?')) return;
+    try {
+      await paymentService.deletePayment(paymentId);
+      await refreshContract();
+      toast.success('Pagamento removido');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Erro ao remover pagamento');
     }
   };
 
@@ -145,6 +183,9 @@ function ContractDetail() {
   const isTerminal = contract.status === 'FINISHED' || contract.status === 'CANCELLED';
   const canManage = !isTerminal;
 
+  const totalReceived = payments.filter((p) => p.status === 'PAID').reduce((s, p) => s + (p.amount || 0), 0);
+  const totalPending = payments.filter((p) => p.status !== 'PAID').reduce((s, p) => s + (p.amount || 0), 0);
+
   return (
     <div className="contract-detail">
       <button className="back-link" onClick={() => navigate(-1)}>
@@ -200,11 +241,11 @@ function ContractDetail() {
           </div>
           <div className="amount-box success">
             <div className="amount-label">Recebido</div>
-            <div className="amount-value">{formatCurrency(contract.totalReceived)}</div>
+            <div className="amount-value">{formatCurrency(totalReceived)}</div>
           </div>
           <div className="amount-box danger">
             <div className="amount-label">Pendente</div>
-            <div className="amount-value">{formatCurrency(contract.totalPending)}</div>
+            <div className="amount-value">{formatCurrency(totalPending)}</div>
           </div>
           <div className="amount-box">
             <div className="amount-label">Caução</div>
@@ -289,18 +330,23 @@ function ContractDetail() {
       <div className="payments-section">
         <div className="section-header">
           <h2><FiDollarSign style={{ marginRight: 8, verticalAlign: 'middle' }} />Pagamentos</h2>
+          {canManage && (
+            <button className="btn-primary btn-sm" onClick={() => setShowPaymentModal(true)}>
+              <FiPlus /> Novo Pagamento
+            </button>
+          )}
         </div>
-        {(!contract.payments || contract.payments.length === 0) ? (
+        {payments.length === 0 ? (
           <div className="empty-state">
             <FiDollarSign />
             <p>Nenhum pagamento registrado</p>
           </div>
         ) : (
-          contract.payments.map((payment) => (
+          payments.map((payment) => (
             <div key={payment.paymentId} className="payment-item">
               <div className="payment-info">
                 <h4>
-                  {formatCurrency(payment.amount)}
+                  {PAYMENT_TYPE_LABELS[payment.type] || payment.type} — {formatCurrency(payment.amount)}
                   <span
                     className="status-badge"
                     style={{
@@ -319,25 +365,36 @@ function ContractDetail() {
                   {payment.description && ` — ${payment.description}`}
                 </p>
               </div>
-              {payment.status !== 'PAID' && canManage && (
-                <div className="payment-actions">
-                  <select
-                    value={paymentMethods[payment.paymentId] || ''}
-                    onChange={(e) => setPaymentMethods((prev) => ({ ...prev, [payment.paymentId]: e.target.value }))}
-                  >
-                    <option value="">Método...</option>
-                    <option value="PIX">Pix</option>
-                    <option value="CASH">Dinheiro</option>
-                    <option value="CARD">Cartão</option>
-                  </select>
+              <div className="payment-actions">
+                {payment.status !== 'PAID' && canManage && (
+                  <>
+                    <select
+                      value={paymentMethods[payment.paymentId] || ''}
+                      onChange={(e) => setPaymentMethods((prev) => ({ ...prev, [payment.paymentId]: e.target.value }))}
+                    >
+                      <option value="">Método...</option>
+                      <option value="PIX">Pix</option>
+                      <option value="CASH">Dinheiro</option>
+                      <option value="CARD">Cartão</option>
+                    </select>
+                    <button
+                      className="btn-primary btn-sm"
+                      onClick={() => handleRegisterPayment(payment.paymentId)}
+                    >
+                      <FiCheckCircle /> Pagar
+                    </button>
+                  </>
+                )}
+                {canManage && (
                   <button
-                    className="btn-primary btn-sm"
-                    onClick={() => handleRegisterPayment(payment.paymentId)}
+                    className="btn-danger btn-sm"
+                    title="Remover pagamento"
+                    onClick={() => handleDeletePayment(payment.paymentId)}
                   >
-                    <FiCheckCircle /> Pagar
+                    <FiTrash2 />
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           ))
         )}
@@ -377,6 +434,68 @@ function ContractDetail() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Payment Modal */}
+      {showPaymentModal && (
+        <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Novo Pagamento</h3>
+              <button className="btn-icon" onClick={() => setShowPaymentModal(false)}><FiX /></button>
+            </div>
+            <form onSubmit={handleCreatePayment}>
+              <div className="modal-body">
+                <div className="form-group" style={{ marginBottom: 16 }}>
+                  <label>Tipo <span className="required">*</span></label>
+                  <select
+                    value={paymentForm.type}
+                    onChange={(e) => setPaymentForm((p) => ({ ...p, type: e.target.value }))}
+                    required
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="DEPOSIT">Caução / Depósito</option>
+                    <option value="WEEKLY">Pagamento Semanal</option>
+                    <option value="FULL_PAYMENT">Pagamento Integral (15 dias)</option>
+                  </select>
+                </div>
+                <div className="form-group" style={{ marginBottom: 16 }}>
+                  <label>Valor (R$) <span className="required">*</span></label>
+                  <input
+                    type="number"
+                    value={paymentForm.amount}
+                    onChange={(e) => setPaymentForm((p) => ({ ...p, amount: e.target.value }))}
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0"
+                    required
+                  />
+                </div>
+                <div className="form-group" style={{ marginBottom: 16 }}>
+                  <label>Data de Vencimento <span className="required">*</span></label>
+                  <input
+                    type="date"
+                    value={paymentForm.dueDate}
+                    onChange={(e) => setPaymentForm((p) => ({ ...p, dueDate: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Descrição</label>
+                  <input
+                    value={paymentForm.description}
+                    onChange={(e) => setPaymentForm((p) => ({ ...p, description: e.target.value }))}
+                    placeholder="Observação opcional"
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn-secondary btn-sm" onClick={() => setShowPaymentModal(false)}>Cancelar</button>
+                <button type="submit" className="btn-primary btn-sm">Criar</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

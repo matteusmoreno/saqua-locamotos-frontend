@@ -17,7 +17,6 @@ const contractService = {
       }),
     );
 
-    // Flatten + deduplica por contractId
     const all = contractArrays.flat();
     const seen = new Set();
     return all.filter((c) => {
@@ -34,11 +33,6 @@ const contractService = {
 
   findById: async (contractId) => {
     const response = await api.get(`/contracts/${contractId}`);
-    return response.data;
-  },
-
-  registerPayment: async (data) => {
-    const response = await api.patch('/contracts/payment/register', data);
     return response.data;
   },
 

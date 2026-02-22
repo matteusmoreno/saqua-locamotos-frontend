@@ -6,6 +6,7 @@ import {
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import contractService from '../../services/contractService';
+import paymentService from '../../services/paymentService';
 import {
   formatCurrency, formatDate,
 } from '../../utils/formatters';
@@ -23,7 +24,20 @@ function Financial() {
   const loadData = async () => {
     try {
       const data = await contractService.findAll();
-      setContracts(Array.isArray(data) ? data : []);
+      const contracts = Array.isArray(data) ? data : [];
+
+      // Enrich each contract with its payments (now a separate entity)
+      const enriched = await Promise.all(
+        contracts.map(async (contract) => {
+          try {
+            const payments = await paymentService.findByContractId(contract.contractId);
+            return { ...contract, payments: Array.isArray(payments) ? payments : [] };
+          } catch {
+            return { ...contract, payments: [] };
+          }
+        })
+      );
+      setContracts(enriched);
     } catch (error) {
       console.error('Erro ao carregar dados financeiros:', error);
       toast.error('Erro ao carregar dados financeiros');
