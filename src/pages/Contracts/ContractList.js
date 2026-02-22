@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   FiPlus, FiSearch, FiFileText, FiInbox,
-  FiTruck, FiCalendar, FiDollarSign,
+  FiTruck, FiCalendar, FiDollarSign, FiAlertTriangle, FiCheckCircle,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import contractService from '../../services/contractService';
@@ -63,10 +63,44 @@ function ContractList() {
   return (
     <div className="contract-list-page">
       <div className="page-header">
-        <h1>Contratos</h1>
+        <div>
+          <h1>Contratos</h1>
+          <span className="page-header-sub">{contracts.length} cadastrados</span>
+        </div>
         <button className="btn-primary" onClick={() => navigate('/contratos/novo')}>
           <FiPlus /> Novo Contrato
         </button>
+      </div>
+
+      <div className="mini-kpi-row">
+        <div className="mini-kpi">
+          <div className="mini-kpi-icon"><FiFileText /></div>
+          <div className="mini-kpi-info">
+            <span className="mini-kpi-value">{statusCounts.ALL}</span>
+            <span className="mini-kpi-label">Total</span>
+          </div>
+        </div>
+        <div className="mini-kpi success">
+          <div className="mini-kpi-icon"><FiCheckCircle /></div>
+          <div className="mini-kpi-info">
+            <span className="mini-kpi-value">{statusCounts.ACTIVE}</span>
+            <span className="mini-kpi-label">Ativos</span>
+          </div>
+        </div>
+        <div className="mini-kpi warning">
+          <div className="mini-kpi-icon"><FiAlertTriangle /></div>
+          <div className="mini-kpi-info">
+            <span className="mini-kpi-value">{statusCounts.OVERDUE}</span>
+            <span className="mini-kpi-label">Em Atraso</span>
+          </div>
+        </div>
+        <div className="mini-kpi info">
+          <div className="mini-kpi-icon"><FiCalendar /></div>
+          <div className="mini-kpi-info">
+            <span className="mini-kpi-value">{statusCounts.FINISHED}</span>
+            <span className="mini-kpi-label">Finalizados</span>
+          </div>
+        </div>
       </div>
 
       {/* Filters */}

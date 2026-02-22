@@ -7,10 +7,12 @@ import {
 } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 import userService from '../../services/userService';
+import paymentService from '../../services/paymentService';
 import {
   formatCurrency, formatDate, formatPhone,
   CONTRACT_STATUS_LABELS, RENTAL_TYPE_LABELS,
-  PAYMENT_STATUS_LABELS, getStatusColor, getStatusBgColor,
+  PAYMENT_TYPE_LABELS,
+  getStatusColor, getStatusBgColor,
 } from '../../utils/formatters';
 import './CustomerHome.css';
 
@@ -19,6 +21,7 @@ function CustomerHome() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [contracts, setContracts] = useState([]);
+  const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,7 +36,19 @@ function CustomerHome() {
         userService.findContractsByUserId(authUser.userId),
       ]);
       setUserData(profile);
-      setContracts(Array.isArray(userContracts) ? userContracts : []);
+      const contractList = Array.isArray(userContracts) ? userContracts : [];
+      setContracts(contractList);
+
+      // Load payments for the active/overdue contract
+      const active = contractList.find((c) => c.status === 'ACTIVE' || c.status === 'OVERDUE');
+      if (active) {
+        try {
+          const paymentData = await paymentService.findByContractId(active.contractId);
+          setPayments(Array.isArray(paymentData) ? paymentData : []);
+        } catch {
+          setPayments([]);
+        }
+      }
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
     } finally {
@@ -46,13 +61,15 @@ function CustomerHome() {
   }
 
   const activeContract = contracts.find((c) => c.status === 'ACTIVE' || c.status === 'OVERDUE');
-  const allPayments = activeContract?.payments || [];
+  const allPayments = payments;
   const paidPayments = allPayments.filter((p) => p.status === 'PAID');
   const pendingPayments = allPayments.filter((p) => p.status === 'PENDING');
   const overduePayments = allPayments.filter((p) => p.status === 'OVERDUE');
-  const nextPayment = [...pendingPayments, ...overduePayments].sort(
-    (a, b) => new Date(a.dueDate) - new Date(b.dueDate)
-  )[0];
+  const totalPaid = paidPayments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  const totalPending = pendingPayments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  const totalOverdue = overduePayments.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+  const nextPayment = [...overduePayments, ...pendingPayments]
+    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
 
   return (
     <div className="ch-page">
@@ -76,6 +93,7 @@ function CustomerHome() {
               <span className="ch-stat-value">{paidPayments.length}</span>
               <span className="ch-stat-label">Pagos</span>
             </div>
+            <span className="ch-stat-amount">{formatCurrency(totalPaid)}</span>
           </div>
           <div className="ch-stat-card warning">
             <FiClock />
@@ -83,6 +101,7 @@ function CustomerHome() {
               <span className="ch-stat-value">{pendingPayments.length}</span>
               <span className="ch-stat-label">Pendentes</span>
             </div>
+            <span className="ch-stat-amount">{formatCurrency(totalPending)}</span>
           </div>
           <div className="ch-stat-card danger">
             <FiAlertTriangle />
@@ -90,6 +109,7 @@ function CustomerHome() {
               <span className="ch-stat-value">{overduePayments.length}</span>
               <span className="ch-stat-label">Atrasados</span>
             </div>
+            <span className="ch-stat-amount">{formatCurrency(totalOverdue)}</span>
           </div>
           <div className="ch-stat-card amber">
             <FiDollarSign />
@@ -224,42 +244,95 @@ function CustomerHome() {
         </div>
       </div>
 
-      {/* Payments timeline */}
-      {activeContract && allPayments.length > 0 && (
+      {/* Payments section */}
+      {activeContract && (
         <div className="ch-section ch-section-full">
           <div className="ch-section-header">
             <h2><FiDollarSign style={{ marginRight: 8 }} />Meus Pagamentos</h2>
           </div>
-          <div className="ch-payments">
-            {allPayments
-              .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
-              .map((payment, idx) => (
-                <div key={idx} className={`ch-payment-item ${payment.status?.toLowerCase()}`}>
-                  <div className="ch-payment-status-icon">
-                    {payment.status === 'PAID' && <FiCheckCircle />}
-                    {payment.status === 'PENDING' && <FiClock />}
-                    {payment.status === 'OVERDUE' && <FiAlertTriangle />}
+
+          {allPayments.length === 0 ? (
+            <div className="ch-empty"><FiDollarSign /><p>Nenhum pagamento registrado</p></div>
+          ) : (
+            <div className="ch-payments-wrapper">
+
+              {/* Overdue block */}
+              {overduePayments.length > 0 && (
+                <div className="ch-payment-group">
+                  <div className="ch-payment-group-title danger">
+                    <FiAlertTriangle /> {overduePayments.length} Pagamento(s) em Atraso
                   </div>
-                  <div className="ch-payment-info">
-                    <h4>{formatCurrency(payment.amount)}</h4>
-                    <p>
-                      {payment.description || `Pagamento ${idx + 1}`} ·
-                      Vencimento: {formatDate(payment.dueDate)}
-                      {payment.paidDate && ` · Pago em ${formatDate(payment.paidDate)}`}
-                    </p>
-                  </div>
-                  <span
-                    className="status-badge"
-                    style={{
-                      background: getStatusBgColor(payment.status),
-                      color: getStatusColor(payment.status),
-                    }}
-                  >
-                    {PAYMENT_STATUS_LABELS[payment.status]}
-                  </span>
+                  {overduePayments
+                    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                    .map((p, i) => (
+                      <div key={i} className="ch-payment-item overdue">
+                        <div className="ch-payment-status-icon"><FiAlertTriangle /></div>
+                        <div className="ch-payment-info">
+                          <h4>{PAYMENT_TYPE_LABELS?.[p.type] || formatCurrency(p.amount)}</h4>
+                          <p>
+                            {formatCurrency(p.amount)}
+                            {p.description && ` · ${p.description}`}
+                            {' · Venceu: '}{formatDate(p.dueDate)}
+                          </p>
+                        </div>
+                        <span className="ch-payment-badge overdue">Atrasado</span>
+                      </div>
+                    ))}
                 </div>
-              ))}
-          </div>
+              )}
+
+              {/* Pending block */}
+              {pendingPayments.length > 0 && (
+                <div className="ch-payment-group">
+                  <div className="ch-payment-group-title warning">
+                    <FiClock /> {pendingPayments.length} Pagamento(s) Pendente(s)
+                  </div>
+                  {pendingPayments
+                    .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                    .map((p, i) => (
+                      <div key={i} className="ch-payment-item pending">
+                        <div className="ch-payment-status-icon"><FiClock /></div>
+                        <div className="ch-payment-info">
+                          <h4>{PAYMENT_TYPE_LABELS?.[p.type] || formatCurrency(p.amount)}</h4>
+                          <p>
+                            {formatCurrency(p.amount)}
+                            {p.description && ` · ${p.description}`}
+                            {' · Vencimento: '}{formatDate(p.dueDate)}
+                          </p>
+                        </div>
+                        <span className="ch-payment-badge pending">Pendente</span>
+                      </div>
+                    ))}
+                </div>
+              )}
+
+              {/* Paid block */}
+              {paidPayments.length > 0 && (
+                <div className="ch-payment-group">
+                  <div className="ch-payment-group-title success">
+                    <FiCheckCircle /> {paidPayments.length} Pagamento(s) Realizados
+                  </div>
+                  {paidPayments
+                    .sort((a, b) => new Date(b.paidDate) - new Date(a.paidDate))
+                    .map((p, i) => (
+                      <div key={i} className="ch-payment-item paid">
+                        <div className="ch-payment-status-icon"><FiCheckCircle /></div>
+                        <div className="ch-payment-info">
+                          <h4>{PAYMENT_TYPE_LABELS?.[p.type] || formatCurrency(p.amount)}</h4>
+                          <p>
+                            {formatCurrency(p.amount)}
+                            {p.description && ` · ${p.description}`}
+                            {' · Pago em: '}{formatDate(p.paidDate)}
+                            {p.method && ` · ${p.method === 'PIX' ? 'Pix' : p.method === 'CASH' ? 'Dinheiro' : 'Cartão'}`}
+                          </p>
+                        </div>
+                        <span className="ch-payment-badge paid">Pago</span>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 

@@ -4,6 +4,252 @@
   gap: 16px;
 }
 
+/* Back link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: var(--transition);
+  margin-bottom: -4px;
+}
+
+.back-link:hover { color: var(--text-primary); }
+
+/* Profile Header */
+.profile-header {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-light);
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  position: relative;
+}
+
+.profile-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-dark, #d4960a));
+}
+
+.profile-header-body {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px 24px 20px;
+  flex: 1;
+}
+
+.profile-avatar {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--primary-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: var(--primary-dark);
+  border: 3px solid var(--primary-bg);
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-info h1 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.4px;
+}
+
+.profile-info p {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.profile-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 24px 24px 20px 0;
+}
+
+/* Info Cards */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.info-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+}
+
+.info-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-main);
+}
+
+.info-card-header svg {
+  font-size: 1rem;
+  color: var(--primary-dark);
+}
+
+.info-card-header h3 {
+  font-size: 0.87rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.info-card-body {
+  padding: 12px 20px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-row .label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.info-row .value {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Section header (shared by contracts-section, etc.) */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-main);
+}
+
+.section-header h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Contracts Section */
+.contracts-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+}
+
+.contract-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.contract-item:hover {
+  background: var(--bg-card-hover);
+  box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.contract-item:last-child {
+  border-bottom: none;
+}
+
+.contract-item-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.contract-item-left h4 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.contract-item-left p {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+/* Upload */
+.upload-input {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .profile-header-body {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .profile-actions {
+    width: 100%;
+    justify-content: center;
+    padding: 0 20px 20px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-info h1 {
+    font-size: 1.1rem;
+  }
+}
+
 /* Profile Header */
 .profile-header {
   background: var(--bg-card);

@@ -76,16 +76,18 @@ function CustomerDetail() {
 
       {/* Profile Header */}
       <div className="profile-header">
-        <div className="profile-avatar">
-          {customer.pictureUrl ? (
-            <img src={customer.pictureUrl} alt={customer.name} />
-          ) : (
-            customer.name?.charAt(0).toUpperCase()
-          )}
-        </div>
-        <div className="profile-info">
-          <h1>{customer.name}</h1>
-          <p>{customer.email} &middot; {formatPhone(customer.phone)}</p>
+        <div className="profile-header-body">
+          <div className="profile-avatar">
+            {customer.pictureUrl ? (
+              <img src={customer.pictureUrl} alt={customer.name} />
+            ) : (
+              customer.name?.charAt(0).toUpperCase()
+            )}
+          </div>
+          <div className="profile-info">
+            <h1>{customer.name}</h1>
+            <p>{customer.email} &middot; {formatPhone(customer.phone)}</p>
+          </div>
         </div>
         <div className="profile-actions">
           <button className="btn-icon" title="Upload foto" onClick={() => fileInputRef.current?.click()}>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiSearch, FiTruck, FiChevronRight } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiTruck, FiChevronRight, FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
 import motorcycleService from '../../services/motorcycleService';
 import './MotorcycleList.css';
 import '../Customers/CustomerList.css';
@@ -60,14 +60,53 @@ function MotorcycleList() {
     return <div className="loading-container"><div className="spinner" /></div>;
   }
 
+  const totalMotos = motorcycles.length;
+  const availableCount = motorcycles.filter((m) => m.available && m.active).length;
+  const rentedCount = motorcycles.filter((m) => !m.available && m.active).length;
+  const inactiveCount = motorcycles.filter((m) => !m.active).length;
+
   return (
     <div>
       <div className="page-header">
-        <h1>Motos</h1>
+        <div>
+          <h1>Motos</h1>
+          <span className="page-header-sub">{totalMotos} cadastradas</span>
+        </div>
         <button className="btn-primary" onClick={() => navigate('/motos/nova')}>
           <FiPlus />
           Nova Moto
         </button>
+      </div>
+
+      <div className="mini-kpi-row">
+        <div className="mini-kpi">
+          <div className="mini-kpi-icon"><FiTruck /></div>
+          <div className="mini-kpi-info">
+            <span className="mini-kpi-value">{totalMotos}</span>
+            <span className="mini-kpi-label">Total</span>
+          </div>
+        </div>
+        <div className="mini-kpi success">
+          <div className="mini-kpi-icon"><FiCheckCircle /></div>
+          <div className="mini-kpi-info">
+            <span className="mini-kpi-value">{availableCount}</span>
+            <span className="mini-kpi-label">Disponíveis</span>
+          </div>
+        </div>
+        <div className="mini-kpi warning">
+          <div className="mini-kpi-icon"><FiTruck /></div>
+          <div className="mini-kpi-info">
+            <span className="mini-kpi-value">{rentedCount}</span>
+            <span className="mini-kpi-label">Alugadas</span>
+          </div>
+        </div>
+        <div className="mini-kpi danger">
+          <div className="mini-kpi-icon"><FiAlertTriangle /></div>
+          <div className="mini-kpi-info">
+            <span className="mini-kpi-value">{inactiveCount}</span>
+            <span className="mini-kpi-label">Inativas</span>
+          </div>
+        </div>
       </div>
 
       <div className="search-bar" style={{ marginBottom: 12 }}>

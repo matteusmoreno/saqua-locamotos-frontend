@@ -3,15 +3,25 @@
   border-radius: var(--radius-md);
   box-shadow: var(--shadow);
   border: 1px solid var(--border-light);
-  padding: 24px;
+  padding: 20px 24px;
   display: flex;
   align-items: center;
   gap: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.moto-detail-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-dark, #d4960a));
 }
 
 .moto-detail-icon {
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 60px;
   border-radius: var(--radius-md);
   background: var(--primary-bg);
   display: flex;
@@ -30,12 +40,13 @@
   font-size: 1.3rem;
   font-weight: 800;
   color: var(--text-primary);
+  letter-spacing: -0.3px;
 }
 
 .moto-detail-info p {
-  font-size: 0.85rem;
+  font-size: 0.83rem;
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .moto-detail-actions {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiPlus, FiSearch, FiChevronRight } from 'react-icons/fi';
+import { FiPlus, FiSearch, FiChevronRight, FiUsers } from 'react-icons/fi';
 import userService from '../../services/userService';
 import { formatCPF, formatPhone } from '../../utils/formatters';
 import './CustomerList.css';
@@ -47,15 +47,34 @@ function CustomerList() {
   return (
     <div>
       <div className="page-header">
-        <h1>Locadores</h1>
+        <div>
+          <h1>Locadores</h1>
+          <span className="page-header-sub">{customers.length} cadastrados</span>
+        </div>
         <button className="btn-primary" onClick={() => navigate('/locadores/novo')}>
           <FiPlus />
           Novo Locador
         </button>
       </div>
 
-      <div className="search-bar" style={{ marginBottom: 16 }}>
-        <FiSearch />
+      <div className="mini-kpi-row">
+        <div className="mini-kpi">
+          <div className="mini-kpi-icon"><FiUsers /></div>
+          <div className="mini-kpi-info">
+            <span className="mini-kpi-value">{customers.length}</span>
+            <span className="mini-kpi-label">Total</span>
+          </div>
+        </div>
+        <div className="mini-kpi success">
+          <div className="mini-kpi-icon"><FiUsers /></div>
+          <div className="mini-kpi-info">
+            <span className="mini-kpi-value">{filtered.length}</span>
+            <span className="mini-kpi-label">Filtrados</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="search-bar" style={{ marginBottom: 16 }}>        <FiSearch />
         <input
           type="text"
           placeholder="Buscar por nome, CPF, e-mail..."

@@ -2,16 +2,90 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
   gap: 12px;
 }
 
 .page-header h1 {
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: var(--text-primary);
-  letter-spacing: -0.5px;
+  letter-spacing: -0.6px;
+}
+
+.page-header-sub {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* Mini KPI row (for list pages) */
+.mini-kpi-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.mini-kpi {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 12px 18px;
+  flex: 1;
+  min-width: 110px;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.mini-kpi:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.mini-kpi-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  background: var(--primary-bg);
+  color: var(--primary-dark);
+}
+
+.mini-kpi.success .mini-kpi-icon { background: var(--success-bg); color: var(--success); }
+.mini-kpi.warning .mini-kpi-icon { background: var(--warning-bg); color: var(--warning); }
+.mini-kpi.danger  .mini-kpi-icon { background: var(--danger-bg);  color: var(--danger); }
+.mini-kpi.info    .mini-kpi-icon { background: var(--info-bg);    color: var(--info); }
+
+.mini-kpi-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.mini-kpi-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.mini-kpi-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .btn-primary {
@@ -155,20 +229,20 @@
 }
 
 .data-table th {
-  padding: 12px 16px;
+  padding: 11px 16px;
   text-align: left;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   background: var(--bg-main);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
   white-space: nowrap;
 }
 
 .data-table td {
-  padding: 12px 16px;
+  padding: 13px 16px;
   font-size: 0.875rem;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-light);
@@ -182,6 +256,7 @@
 .data-table tbody tr:hover {
   background: var(--bg-card-hover);
   cursor: pointer;
+  box-shadow: inset 3px 0 0 var(--primary);
 }
 
 .data-table tbody tr:last-child td {
@@ -192,13 +267,13 @@
 .customer-cards {
   display: none;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .customer-card {
   background: var(--bg-card);
   border-radius: var(--radius-md);
-  padding: 16px;
+  padding: 14px 16px;
   box-shadow: var(--shadow);
   border: 1px solid var(--border-light);
   display: flex;
@@ -213,14 +288,14 @@
 }
 
 .customer-card-avatar {
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   background: var(--primary-bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
+  font-weight: 800;
   font-size: 1rem;
   color: var(--primary-dark);
   flex-shrink: 0;
@@ -233,7 +308,7 @@
 
 .customer-card-info h4 {
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -241,15 +316,27 @@
 }
 
 .customer-card-info p {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: var(--text-muted);
   margin-top: 2px;
 }
 
 .customer-card-arrow {
   color: var(--text-muted);
-  font-size: 1.1rem;
+  font-size: 1rem;
   flex-shrink: 0;
+}
+
+/* Shared status badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
 }
 
 @media (max-width: 768px) {
@@ -259,7 +346,7 @@
   }
 
   .page-header h1 {
-    font-size: 1.2rem;
+    font-size: 1.25rem;
   }
 
   .search-bar {
@@ -272,5 +359,17 @@
 
   .customer-cards {
     display: flex;
+  }
+
+  .mini-kpi-row {
+    gap: 8px;
+  }
+
+  .mini-kpi {
+    padding: 10px 14px;
+  }
+
+  .mini-kpi-value {
+    font-size: 1.1rem;
   }
 }
