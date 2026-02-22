@@ -2,28 +2,8 @@ import api from './api';
 
 const contractService = {
   findAll: async () => {
-    // Backend não possui GET /contracts/all — agrega a partir de cada cliente
-    const customersRes = await api.get('/users/customers/all');
-    const customers = Array.isArray(customersRes.data) ? customersRes.data : [];
-
-    const contractArrays = await Promise.all(
-      customers.map(async (customer) => {
-        try {
-          const res = await api.get(`/users/${customer.customerId}/contracts`);
-          return Array.isArray(res.data) ? res.data : [];
-        } catch {
-          return [];
-        }
-      }),
-    );
-
-    const all = contractArrays.flat();
-    const seen = new Set();
-    return all.filter((c) => {
-      if (!c.contractId || seen.has(c.contractId)) return false;
-      seen.add(c.contractId);
-      return true;
-    });
+    const response = await api.get('/contracts/all');
+    return Array.isArray(response.data) ? response.data : [];
   },
 
   create: async (data) => {
