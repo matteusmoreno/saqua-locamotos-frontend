@@ -77,6 +77,7 @@ export const PAYMENT_TYPE_LABELS = {
   DEPOSIT: 'Caução / Depósito',
   WEEKLY: 'Pagamento Semanal',
   FULL_PAYMENT: 'Pagamento Integral (15 dias)',
+  FINE: 'Multa',
 };
 
 export function getStatusColor(status) {

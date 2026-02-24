@@ -16,16 +16,6 @@ const contractService = {
     return response.data;
   },
 
-  addFine: async (data) => {
-    const response = await api.patch('/contracts/fine/add', data);
-    return response.data;
-  },
-
-  payFine: async (contractId, fineId) => {
-    const response = await api.patch(`/contracts/${contractId}/fine/${fineId}/pay`);
-    return response.data;
-  },
-
   finish: async (contractId, refundDeposit) => {
     const response = await api.patch(`/contracts/${contractId}/finish?refundDeposit=${refundDeposit}`);
     return response.data;

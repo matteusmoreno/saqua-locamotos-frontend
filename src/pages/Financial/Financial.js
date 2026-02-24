@@ -56,14 +56,12 @@ function Financial() {
   const totalPending = pendingPayments.reduce((sum, p) => sum + (p.amount || 0), 0);
   const totalOverdue = overduePayments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
-  // Fines
-  const allFines = contracts.flatMap((c) => (c.fines || []).map((f) => ({ ...f, contract: c })));
-  const paidFines = allFines.filter((f) => f.paid);
-  const unpaidFines = allFines.filter((f) => !f.paid);
-  const totalFinesReceived = paidFines.reduce((sum, f) => sum + (f.amount || 0), 0);
-  const totalFinesPending = unpaidFines.reduce((sum, f) => sum + (f.amount || 0), 0);
-
-  const grandTotalReceived = totalReceived + totalFinesReceived;
+  // Fine payments (type === 'FINE')
+  const finePayments = allPayments.filter((p) => p.type === 'FINE');
+  const paidFinePayments = finePayments.filter((p) => p.status === 'PAID');
+  const pendingFinePayments = finePayments.filter((p) => p.status !== 'PAID');
+  const totalFinesReceived = paidFinePayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+  const totalFinesPending = pendingFinePayments.reduce((sum, p) => sum + (p.amount || 0), 0);
 
   // Revenue per motorcycle
   const motoRevenue = {};
@@ -131,7 +129,7 @@ function Financial() {
           <div className="fin-kpi-icon"><FiCheckCircle /></div>
           <div className="fin-kpi-info">
             <span className="fin-kpi-label">Total Recebido</span>
-            <span className="fin-kpi-value">{formatCurrency(grandTotalReceived)}</span>
+            <span className="fin-kpi-value">{formatCurrency(totalReceived)}</span>
             <span className="fin-kpi-sub">{paidPayments.length} pagamentos</span>
           </div>
         </div>
@@ -154,9 +152,9 @@ function Financial() {
         <div className="fin-kpi-card amber">
           <div className="fin-kpi-icon"><FiDollarSign /></div>
           <div className="fin-kpi-info">
-            <span className="fin-kpi-label">Multas Pendentes</span>
-            <span className="fin-kpi-value">{formatCurrency(totalFinesPending)}</span>
-            <span className="fin-kpi-sub">{unpaidFines.length} multas</span>
+            <span className="fin-kpi-label">Multas</span>
+            <span className="fin-kpi-value">{formatCurrency(totalFinesReceived)}</span>
+            <span className="fin-kpi-sub">{pendingFinePayments.length > 0 ? `${pendingFinePayments.length} pendente(s) — ${formatCurrency(totalFinesPending)}` : `${paidFinePayments.length} cobradas`}</span>
           </div>
         </div>
       </div>
@@ -165,8 +163,8 @@ function Financial() {
       <div className="fin-section">
         <div className="fin-section-header">
           <h2><FiBarChart2 style={{ marginRight: 8 }} />Receita Mensal</h2>
-          {grandTotalReceived > 0 && (
-            <span className="fin-section-sub">{formatCurrency(grandTotalReceived)} acumulado</span>
+          {totalReceived > 0 && (
+            <span className="fin-section-sub">{formatCurrency(totalReceived)} acumulado</span>
           )}
         </div>
         {monthlyData.length === 0 ? (

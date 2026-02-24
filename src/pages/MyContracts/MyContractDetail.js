@@ -10,6 +10,7 @@ import {
   RENTAL_TYPE_LABELS,
   PAYMENT_STATUS_LABELS,
   PAYMENT_METHOD_LABELS,
+  PAYMENT_TYPE_LABELS,
   getStatusColor,
   getStatusBgColor,
 } from '../../utils/formatters';
@@ -17,7 +18,6 @@ import {
   FiArrowLeft,
   FiTruck,
   FiDollarSign,
-  FiAlertTriangle,
   FiCheckCircle,
   FiFileText,
   FiExternalLink,
@@ -63,8 +63,13 @@ function MyContractDetail() {
 
   if (!contract) return null;
 
-  const fines = contract.fines || [];
   const moto = contract.motorcycle;
+
+  // Compute totals from payments state
+  const totalReceived = payments.filter((p) => p.status === 'PAID').reduce((s, p) => s + (p.amount || 0), 0);
+  const totalPending = payments.filter((p) => p.status !== 'PAID').reduce((s, p) => s + (p.amount || 0), 0);
+  const finePayments = payments.filter((p) => p.type === 'FINE');
+  const totalFines = finePayments.reduce((s, p) => s + (p.amount || 0), 0);
 
   return (
     <div className="my-contract-detail">
@@ -106,12 +111,12 @@ function MyContractDetail() {
         </div>
         <div className="mcd-amount-box">
           <p className="mcd-amount-label">Total Recebido</p>
-          <p className="mcd-amount-value success">{formatCurrency(contract.totalReceived)}</p>
+          <p className="mcd-amount-value success">{formatCurrency(totalReceived)}</p>
         </div>
         <div className="mcd-amount-box">
           <p className="mcd-amount-label">Total Pendente</p>
-          <p className={`mcd-amount-value ${contract.totalPending > 0 ? 'warning' : 'success'}`}>
-            {formatCurrency(contract.totalPending)}
+          <p className={`mcd-amount-value ${totalPending > 0 ? 'warning' : 'success'}`}>
+            {formatCurrency(totalPending)}
           </p>
         </div>
         <div className="mcd-amount-box">
@@ -119,9 +124,9 @@ function MyContractDetail() {
           <p className="mcd-amount-value">{formatCurrency(contract.depositAmount)}</p>
         </div>
         <div className="mcd-amount-box">
-          <p className="mcd-amount-label">Total Multas</p>
-          <p className={`mcd-amount-value ${contract.totalFines > 0 ? 'danger' : ''}`}>
-            {formatCurrency(contract.totalFines)}
+          <p className="mcd-amount-label">Multas</p>
+          <p className={`mcd-amount-value ${totalFines > 0 ? 'danger' : ''}`}>
+            {formatCurrency(totalFines)}
           </p>
         </div>
       </div>
@@ -191,12 +196,13 @@ function MyContractDetail() {
               <div key={payment.paymentId || index} className="mcd-payment-row">
                 <div className="mcd-payment-left">
                   <span className="mcd-payment-period">
-                    Semana {index + 1}
-                    {payment.paymentMethod ? ` · ${PAYMENT_METHOD_LABELS[payment.paymentMethod] || payment.paymentMethod}` : ''}
+                    {PAYMENT_TYPE_LABELS[payment.type] || payment.type || `Pagamento ${index + 1}`}
+                    {payment.method ? ` · ${PAYMENT_METHOD_LABELS[payment.method] || payment.method}` : ''}
                   </span>
                   <span className="mcd-payment-date">
                     Vencimento: {formatDate(payment.dueDate)}
-                    {payment.paymentDate && ` · Pago em: ${formatDateTime(payment.paymentDate)}`}
+                    {payment.paidDate && ` · Pago em: ${formatDateTime(payment.paidDate)}`}
+                    {payment.description && ` · ${payment.description}`}
                   </span>
                 </div>
                 <div className="mcd-payment-right">
@@ -218,34 +224,7 @@ function MyContractDetail() {
         )}
       </div>
 
-      {/* Fines */}
-      {fines.length > 0 && (
-        <div className="mcd-card">
-          <div className="mcd-card-header">
-            <FiAlertTriangle /> Multas ({fines.length})
-          </div>
-          <div className="mcd-payments-list">
-            {fines.map((fine, index) => (
-              <div key={fine.fineId || index} className="mcd-fine-row">
-                <div className="mcd-fine-left">
-                  <span className="mcd-fine-reason">{fine.reason}</span>
-                  <span className="mcd-fine-date">{formatDate(fine.fineDate)}</span>
-                </div>
-                <div className="mcd-fine-right">
-                  <span className="mcd-fine-amount">{formatCurrency(fine.amount)}</span>
-                  {fine.paid ? (
-                    <span className="mcd-fine-paid">
-                      <FiCheckCircle /> Paga
-                    </span>
-                  ) : (
-                    <span className="mcd-fine-unpaid">Pendente</span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }

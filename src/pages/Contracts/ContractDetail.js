@@ -2,13 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   FiArrowLeft, FiFileText, FiUser, FiTruck, FiDollarSign,
-  FiAlertTriangle, FiCheck, FiX, FiUpload, FiCheckCircle, FiPlus, FiTrash2,
+  FiCheck, FiX, FiUpload, FiCheckCircle, FiPlus, FiTrash2,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import contractService from '../../services/contractService';
 import paymentService from '../../services/paymentService';
 import {
-  formatCurrency, formatDate, formatDateTime,
+  formatCurrency, formatDate,
   CONTRACT_STATUS_LABELS, RENTAL_TYPE_LABELS,
   PAYMENT_STATUS_LABELS, PAYMENT_METHOD_LABELS, PAYMENT_TYPE_LABELS,
   getStatusColor, getStatusBgColor
@@ -25,8 +25,6 @@ function ContractDetail() {
   const [loading, setLoading] = useState(true);
 
   // Modal states
-  const [showFineModal, setShowFineModal] = useState(false);
-  const [fineForm, setFineForm] = useState({ amount: '', reason: '' });
   const [showFinishModal, setShowFinishModal] = useState(false);
   const [refundDeposit, setRefundDeposit] = useState(true);
 
@@ -116,33 +114,6 @@ function ContractDetail() {
     }
   };
 
-  const handleAddFine = async (e) => {
-    e.preventDefault();
-    try {
-      await contractService.addFine({
-        contractId: id,
-        amount: parseFloat(fineForm.amount),
-        reason: fineForm.reason,
-      });
-      await refreshContract();
-      setShowFineModal(false);
-      setFineForm({ amount: '', reason: '' });
-      toast.success('Multa adicionada!');
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Erro ao adicionar multa');
-    }
-  };
-
-  const handlePayFine = async (fineId) => {
-    try {
-      await contractService.payFine(id, fineId);
-      await refreshContract();
-      toast.success('Multa paga!');
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Erro ao pagar multa');
-    }
-  };
-
   const handleFinish = async () => {
     try {
       await contractService.finish(id, refundDeposit);
@@ -215,9 +186,6 @@ function ContractDetail() {
                 <button className="btn-icon" title="Upload arquivo" onClick={() => fileInputRef.current?.click()}>
                   <FiUpload />
                 </button>
-                <button className="btn-warning btn-sm" onClick={() => setShowFineModal(true)}>
-                  <FiAlertTriangle /> Multa
-                </button>
                 <button className="btn-primary btn-sm" onClick={() => setShowFinishModal(true)}>
                   <FiCheck /> Finalizar
                 </button>
@@ -251,12 +219,6 @@ function ContractDetail() {
             <div className="amount-label">Caução</div>
             <div className="amount-value">{formatCurrency(contract.depositAmount)}</div>
           </div>
-          {contract.totalFines > 0 && (
-            <div className="amount-box danger">
-              <div className="amount-label">Multas</div>
-              <div className="amount-value">{formatCurrency(contract.totalFines)}</div>
-            </div>
-          )}
         </div>
       </div>
 
@@ -400,43 +362,6 @@ function ContractDetail() {
         )}
       </div>
 
-      {/* Fines */}
-      {contract.fines && contract.fines.length > 0 && (
-        <div className="payments-section">
-          <div className="section-header">
-            <h2><FiAlertTriangle style={{ marginRight: 8, verticalAlign: 'middle' }} />Multas</h2>
-          </div>
-          {contract.fines.map((fine) => (
-            <div key={fine.fineId} className="fine-item">
-              <div className="fine-info">
-                <h4>
-                  {formatCurrency(fine.amount)}
-                  <span
-                    className="status-badge"
-                    style={{
-                      background: fine.paid ? 'var(--success-bg)' : 'var(--danger-bg)',
-                      color: fine.paid ? 'var(--success)' : 'var(--danger)',
-                      marginLeft: 8,
-                    }}
-                  >
-                    {fine.paid ? 'Paga' : 'Pendente'}
-                  </span>
-                </h4>
-                <p>
-                  {fine.reason} &middot; {formatDateTime(fine.createdAt)}
-                  {fine.paidAt && ` — Pago em: ${formatDateTime(fine.paidAt)}`}
-                </p>
-              </div>
-              {!fine.paid && canManage && (
-                <button className="btn-primary btn-sm" onClick={() => handlePayFine(fine.fineId)}>
-                  <FiCheckCircle /> Pagar
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* Payment Modal */}
       {showPaymentModal && (
         <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
@@ -458,6 +383,7 @@ function ContractDetail() {
                     <option value="DEPOSIT">Caução / Depósito</option>
                     <option value="WEEKLY">Pagamento Semanal</option>
                     <option value="FULL_PAYMENT">Pagamento Integral (15 dias)</option>
+                    <option value="FINE">Multa</option>
                   </select>
                 </div>
                 <div className="form-group" style={{ marginBottom: 16 }}>
@@ -493,47 +419,6 @@ function ContractDetail() {
               <div className="modal-footer">
                 <button type="button" className="btn-secondary btn-sm" onClick={() => setShowPaymentModal(false)}>Cancelar</button>
                 <button type="submit" className="btn-primary btn-sm">Criar</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Fine Modal */}
-      {showFineModal && (
-        <div className="modal-overlay" onClick={() => setShowFineModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Adicionar Multa</h3>
-              <button className="btn-icon" onClick={() => setShowFineModal(false)}><FiX /></button>
-            </div>
-            <form onSubmit={handleAddFine}>
-              <div className="modal-body">
-                <div className="form-group" style={{ marginBottom: 16 }}>
-                  <label>Valor (R$) <span className="required">*</span></label>
-                  <input
-                    type="number"
-                    value={fineForm.amount}
-                    onChange={(e) => setFineForm((p) => ({ ...p, amount: e.target.value }))}
-                    placeholder="0.00"
-                    step="0.01"
-                    min="0"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Motivo <span className="required">*</span></label>
-                  <input
-                    value={fineForm.reason}
-                    onChange={(e) => setFineForm((p) => ({ ...p, reason: e.target.value }))}
-                    placeholder="Motivo da multa"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn-secondary btn-sm" onClick={() => setShowFineModal(false)}>Cancelar</button>
-                <button type="submit" className="btn-primary btn-sm">Adicionar</button>
               </div>
             </form>
           </div>
