@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiEdit2, FiUser, FiMapPin, FiFileText, FiUpload, FiTrash2, FiChevronRight } from 'react-icons/fi';
+import { FiArrowLeft, FiEdit2, FiUser, FiMapPin, FiFileText, FiUpload, FiTrash2, FiChevronRight, FiExternalLink } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import userService from '../../services/userService';
 import {
@@ -14,10 +14,12 @@ function CustomerDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const docFileInputRef = useRef(null);
 
   const [customer, setCustomer] = useState(null);
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [pendingDocType, setPendingDocType] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -62,6 +64,45 @@ function CustomerDetail() {
     }
   };
 
+  const DOC_TYPES = [
+    { key: 'cnh',                field: 'cnh',                 label: 'CNH' },
+    { key: 'cpf',                field: 'cpfUrl',              label: 'CPF' },
+    { key: 'rg',                 field: 'rgUrl',               label: 'RG' },
+    { key: 'proof_of_residence', field: 'proofOfResidenceUrl', label: 'Comp. de Residência' },
+    { key: 'criminal_record',    field: 'criminalRecordUrl',   label: 'Antecedentes' },
+    { key: 'passport',           field: 'passportUrl',         label: 'Passaporte' },
+  ];
+
+  const handleUploadDoc = (key) => {
+    setPendingDocType(key);
+    docFileInputRef.current?.click();
+  };
+
+  const handleDocFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !pendingDocType) return;
+    e.target.value = '';
+    try {
+      const updated = await userService.uploadDocuments(id, { [pendingDocType]: file });
+      setCustomer(updated);
+      toast.success('Documento enviado!');
+    } catch {
+      toast.error('Erro ao enviar documento');
+    } finally {
+      setPendingDocType(null);
+    }
+  };
+
+  const handleDeleteDoc = async (key) => {
+    try {
+      const updated = await userService.deleteDocuments(id, [key]);
+      setCustomer(updated);
+      toast.success('Documento removido!');
+    } catch {
+      toast.error('Erro ao remover documento');
+    }
+  };
+
   if (loading) {
     return <div className="loading-container"><div className="spinner" /></div>;
   }
@@ -103,6 +144,54 @@ function CustomerDetail() {
           </button>
           <input ref={fileInputRef} type="file" accept="image/*" className="upload-input" onChange={handleUploadPicture} />
         </div>
+      </div>
+
+      {/* Documents */}
+      <div className="contracts-section">
+        <div className="section-header">
+          <h2><FiFileText style={{ marginRight: 8, verticalAlign: 'middle' }} />Documentos</h2>
+          <span className="doc-count-badge">
+            {DOC_TYPES.filter((d) => customer.documents?.[d.field]).length}/{DOC_TYPES.length} enviados
+          </span>
+        </div>
+        <div className="doc-grid">
+          {DOC_TYPES.map((doc) => {
+            const url = customer.documents?.[doc.field];
+            return (
+              <div key={doc.key} className={`doc-card ${url ? 'sent' : 'missing'}`}>
+                <div className="doc-card-icon"><FiFileText /></div>
+                <div className="doc-card-info">
+                  <h4>{doc.label}</h4>
+                  {url ? (
+                    <a href={url} target="_blank" rel="noopener noreferrer" className="doc-view-link">
+                      <FiExternalLink /> Ver documento
+                    </a>
+                  ) : (
+                    <span className="doc-missing">Não enviado</span>
+                  )}
+                </div>
+                <div className="doc-card-actions">
+                  {url ? (
+                    <button className="btn-icon" title="Remover documento" onClick={() => handleDeleteDoc(doc.key)}>
+                      <FiTrash2 />
+                    </button>
+                  ) : (
+                    <button className="btn-icon" title="Enviar documento" onClick={() => handleUploadDoc(doc.key)}>
+                      <FiUpload />
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <input
+          ref={docFileInputRef}
+          type="file"
+          accept=".pdf,image/*"
+          className="upload-input"
+          onChange={handleDocFileChange}
+        />
       </div>
 
       <div className="info-grid">

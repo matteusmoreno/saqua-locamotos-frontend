@@ -39,6 +39,23 @@ const userService = {
     const response = await api.delete(`/users/${userId}/delete-picture`);
     return response.data;
   },
+
+  uploadDocuments: async (userId, filesMap) => {
+    // filesMap: { cnh: File, cpf: File, rg: File, proof_of_residence: File, ... }
+    const formData = new FormData();
+    Object.entries(filesMap).forEach(([key, file]) => formData.append(key, file));
+    const response = await api.post(`/users/${userId}/upload-documents`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  deleteDocuments: async (userId, types) => {
+    // types: ['cnh', 'cpf', ...]
+    const query = types.map((t) => `types=${encodeURIComponent(t)}`).join('&');
+    const response = await api.delete(`/users/${userId}/delete-documents?${query}`);
+    return response.data;
+  },
 };
 
 export default userService;
