@@ -7,6 +7,7 @@ import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import Landing from './pages/Landing/Landing';
 import PlanMensal from './pages/Plans/PlanMensal';
 import PlanQuinzenal from './pages/Plans/PlanQuinzenal';
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
 import Dashboard from './pages/Dashboard/Dashboard';
 import CustomerList from './pages/Customers/CustomerList';
 import CustomerForm from './pages/Customers/CustomerForm';
@@ -41,6 +42,7 @@ function AppRoutes() {
       <Route path="/" element={<Landing />} />
       <Route path="/planos/mensal" element={<PlanMensal />} />
       <Route path="/planos/quinzenal" element={<PlanQuinzenal />} />
+      <Route path="/esqueci-senha" element={<ForgotPassword />} />
 
       {/* Authenticated area */}
       <Route

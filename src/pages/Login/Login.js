@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import logo from '../../assets/saqua-locamotos-logo.png';
 import './Login.css';
@@ -66,6 +66,10 @@ function Login() {
           <button type="submit" className="login-btn" disabled={loading}>
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
+
+          <Link to="/esqueci-senha" className="login-forgot">
+            Esqueci minha senha
+          </Link>
         </form>
       </div>
     </div>

@@ -66,6 +66,16 @@ const userService = {
     const response = await api.get(`/users/verify-email`, { params: { token } });
     return response.data;
   },
+
+  sendResetPasswordEmail: async (email) => {
+    const response = await api.post(`/users/send-reset-password-email`, null, { params: { email } });
+    return response.data;
+  },
+
+  resetPassword: async (token, newPassword) => {
+    const response = await api.post(`/users/reset-password`, { token, newPassword });
+    return response.data;
+  },
 };
 
 export default userService;

@@ -604,6 +604,13 @@ function Landing() {
               <button type="submit" className="land-modal-submit" disabled={loginLoading}>
                 {loginLoading ? 'Entrando...' : 'Entrar'}
               </button>
+              <button
+                type="button"
+                className="land-modal-forgot"
+                onClick={() => { setShowLogin(false); navigate('/esqueci-senha'); }}
+              >
+                Esqueci minha senha
+              </button>
             </form>
           </div>
         </div>

@@ -166,3 +166,17 @@
     padding: 16px;
   }
 }
+
+.login-forgot {
+  display: block;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  margin-top: -4px;
+  transition: color 0.2s;
+}
+
+.login-forgot:hover {
+  color: var(--primary, #fcc00e);
+}
