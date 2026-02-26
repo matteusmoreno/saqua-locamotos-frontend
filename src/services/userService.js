@@ -76,6 +76,11 @@ const userService = {
     const response = await api.post(`/users/reset-password`, { token, newPassword });
     return response.data;
   },
+
+  updatePassword: async (userId, currentPassword, newPassword) => {
+    const response = await api.patch('/users/update-password', { userId, currentPassword, newPassword });
+    return response.data;
+  },
 };
 
 export default userService;

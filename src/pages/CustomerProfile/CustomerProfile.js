@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import userService from '../../services/userService';
 import { formatCPF, formatPhone, formatCEP, formatDate, MARITAL_STATUS_LABELS } from '../../utils/formatters';
-import { FiUser, FiMapPin, FiMail, FiShield, FiFileText, FiUpload, FiTrash2, FiExternalLink, FiCheckCircle, FiAlertCircle, FiSend, FiX, FiKey } from 'react-icons/fi';
+import { FiUser, FiMapPin, FiMail, FiShield, FiFileText, FiUpload, FiTrash2, FiExternalLink, FiCheckCircle, FiAlertCircle, FiSend, FiX, FiKey, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
 import './CustomerProfile.css';
 
 function CustomerProfile() {
@@ -20,6 +20,18 @@ function CustomerProfile() {
   const [verifyStatus, setVerifyStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
   const [verifyError, setVerifyError] = useState('');
   const tokenInputRef = useRef(null);
+
+  // Change-password modal
+  const [pwModalOpen, setPwModalOpen]       = useState(false);
+  const [currentPw, setCurrentPw]           = useState('');
+  const [newPw, setNewPw]                   = useState('');
+  const [confirmPw, setConfirmPw]           = useState('');
+  const [showCurrentPw, setShowCurrentPw]   = useState(false);
+  const [showNewPw, setShowNewPw]           = useState(false);
+  const [showConfirmPw, setShowConfirmPw]   = useState(false);
+  const [pwStatus, setPwStatus]             = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
+  const [pwError, setPwError]               = useState('');
+  const currentPwRef = useRef(null);
 
   const DOC_TYPES = [
     { key: 'cnh',                field: 'cnh',                 label: 'CNH' },
@@ -122,6 +134,53 @@ function CustomerProfile() {
       const msg = err?.response?.data?.message || err?.response?.data || 'Token inválido ou já utilizado.';
       setVerifyError(typeof msg === 'string' ? msg : 'Erro ao verificar e-mail.');
       setVerifyStatus('error');
+    }
+  };
+
+  // ---- password strength helper ----
+  const getStrength = (pwd) => {
+    if (!pwd) return { level: 0, label: '', color: '' };
+    let score = 0;
+    if (pwd.length >= 8)           score++;
+    if (/[A-Z]/.test(pwd))         score++;
+    if (/[0-9]/.test(pwd))         score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+    const map = [
+      { level: 1, label: 'Muito fraca', color: '#ef4444' },
+      { level: 2, label: 'Fraca',       color: '#f97316' },
+      { level: 3, label: 'Média',       color: '#eab308' },
+      { level: 4, label: 'Forte',       color: '#22c55e' },
+    ];
+    return map[score - 1] ?? map[0];
+  };
+
+  const openPwModal = () => {
+    setCurrentPw(''); setNewPw(''); setConfirmPw('');
+    setShowCurrentPw(false); setShowNewPw(false); setShowConfirmPw(false);
+    setPwStatus('idle'); setPwError('');
+    setPwModalOpen(true);
+    setTimeout(() => currentPwRef.current?.focus(), 80);
+  };
+
+  const closePwModal = () => {
+    if (pwStatus === 'loading') return;
+    setPwModalOpen(false);
+  };
+
+  const pwsMatch    = newPw && confirmPw && newPw === confirmPw;
+  const pwCanSubmit = currentPw && newPw.length >= 6 && pwsMatch;
+
+  const handleChangePassword = async () => {
+    if (!pwCanSubmit) return;
+    setPwStatus('loading');
+    setPwError('');
+    try {
+      await userService.updatePassword(user.userId, currentPw, newPw);
+      setPwStatus('success');
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.response?.data || 'Senha atual incorreta ou erro inesperado.';
+      setPwError(typeof msg === 'string' ? msg : 'Erro ao alterar senha.');
+      setPwStatus('error');
     }
   };
 
@@ -288,6 +347,22 @@ function CustomerProfile() {
         </div>
       )}
 
+      {/* Security */}
+      <div className="cp-section">
+        <div className="cp-section-header">
+          <FiLock /> Segurança
+        </div>
+        <div className="cp-security-row">
+          <div className="cp-security-info">
+            <span className="cp-security-label">Senha</span>
+            <span className="cp-security-desc">Altere sua senha de acesso a qualquer momento.</span>
+          </div>
+          <button className="cp-security-btn" onClick={openPwModal}>
+            <FiLock /> Alterar senha
+          </button>
+        </div>
+      </div>
+
       {/* Documents */}
       <div className="cp-section">
         <div className="cp-section-header">
@@ -385,6 +460,122 @@ function CustomerProfile() {
                 <h3 className="ve-modal-title">E-mail verificado!</h3>
                 <p className="ve-modal-desc">Seu endereço de e-mail foi confirmado com sucesso.</p>
                 <button className="ve-modal-btn" onClick={closeVerifyModal}>Fechar</button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ---- Change-password modal ---- */}
+      {pwModalOpen && (
+        <div className="ve-modal-overlay" onClick={closePwModal}>
+          <div className="ve-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="ve-modal-close" onClick={closePwModal} disabled={pwStatus === 'loading'}>
+              <FiX />
+            </button>
+
+            {pwStatus !== 'success' ? (
+              <>
+                <div className="ve-modal-icon">
+                  <FiLock />
+                </div>
+                <h3 className="ve-modal-title">Alterar senha</h3>
+                <p className="ve-modal-desc">Preencha os campos abaixo para definir uma nova senha.</p>
+
+                {pwError && <div className="ve-modal-error">{pwError}</div>}
+
+                {/* Current password */}
+                <div className="cp-pw-field">
+                  <label>Senha atual</label>
+                  <div className="cp-pw-wrap">
+                    <input
+                      ref={currentPwRef}
+                      type={showCurrentPw ? 'text' : 'password'}
+                      placeholder="Digite sua senha atual"
+                      value={currentPw}
+                      onChange={(e) => setCurrentPw(e.target.value)}
+                      disabled={pwStatus === 'loading'}
+                      autoComplete="current-password"
+                    />
+                    <button type="button" className="cp-pw-eye" onClick={() => setShowCurrentPw(v => !v)}>
+                      {showCurrentPw ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* New password */}
+                <div className="cp-pw-field">
+                  <label>Nova senha</label>
+                  <div className="cp-pw-wrap">
+                    <input
+                      type={showNewPw ? 'text' : 'password'}
+                      placeholder="Mínimo 6 caracteres"
+                      value={newPw}
+                      onChange={(e) => setNewPw(e.target.value)}
+                      disabled={pwStatus === 'loading'}
+                      autoComplete="new-password"
+                    />
+                    <button type="button" className="cp-pw-eye" onClick={() => setShowNewPw(v => !v)}>
+                      {showNewPw ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
+                  {newPw && (() => {
+                    const s = getStrength(newPw);
+                    return (
+                      <div className="cp-pw-strength">
+                        <div className="cp-pw-strength-bar">
+                          {[1,2,3,4].map(n => (
+                            <div key={n} className="cp-pw-strength-seg"
+                              style={{ background: n <= s.level ? s.color : 'rgba(255,255,255,0.08)' }} />
+                          ))}
+                        </div>
+                        <span className="cp-pw-strength-label" style={{ color: s.color }}>{s.label}</span>
+                      </div>
+                    );
+                  })()}
+                </div>
+
+                {/* Confirm password */}
+                <div className="cp-pw-field">
+                  <label>Confirmar nova senha</label>
+                  <div className="cp-pw-wrap">
+                    <input
+                      type={showConfirmPw ? 'text' : 'password'}
+                      placeholder="Repita a nova senha"
+                      value={confirmPw}
+                      onChange={(e) => setConfirmPw(e.target.value)}
+                      disabled={pwStatus === 'loading'}
+                      autoComplete="new-password"
+                      className={confirmPw ? (pwsMatch ? 'input-ok' : 'input-err') : ''}
+                    />
+                    <button type="button" className="cp-pw-eye" onClick={() => setShowConfirmPw(v => !v)}>
+                      {showConfirmPw ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
+                  {confirmPw && !pwsMatch && (
+                    <span className="cp-pw-hint error">As senhas não coincidem</span>
+                  )}
+                  {pwsMatch && (
+                    <span className="cp-pw-hint ok"><FiCheckCircle /> Senhas conferem</span>
+                  )}
+                </div>
+
+                <button
+                  className="ve-modal-btn"
+                  onClick={handleChangePassword}
+                  disabled={!pwCanSubmit || pwStatus === 'loading'}
+                >
+                  {pwStatus === 'loading' ? 'Salvando…' : 'Salvar nova senha'}
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="ve-modal-icon success">
+                  <FiCheckCircle />
+                </div>
+                <h3 className="ve-modal-title">Senha alterada!</h3>
+                <p className="ve-modal-desc">Sua senha foi atualizada com sucesso.</p>
+                <button className="ve-modal-btn" onClick={closePwModal}>Fechar</button>
               </>
             )}
           </div>
