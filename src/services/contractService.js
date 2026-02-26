@@ -34,6 +34,20 @@ const contractService = {
     });
     return response.data;
   },
+
+  generatePdf: async (contractId) => {
+    const response = await api.get(`/contracts/${contractId}/generate-pdf`, {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `contrato-${contractId}.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
 };
 
 export default contractService;

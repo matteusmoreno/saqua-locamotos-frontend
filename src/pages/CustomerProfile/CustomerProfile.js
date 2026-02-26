@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
 import userService from '../../services/userService';
 import { formatCPF, formatPhone, formatCEP, formatDate, MARITAL_STATUS_LABELS } from '../../utils/formatters';
-import { FiUser, FiMapPin, FiMail, FiShield, FiFileText, FiUpload, FiTrash2, FiExternalLink } from 'react-icons/fi';
+import { FiUser, FiMapPin, FiMail, FiShield, FiFileText, FiUpload, FiTrash2, FiExternalLink, FiCheckCircle, FiAlertCircle, FiSend, FiX, FiKey } from 'react-icons/fi';
 import './CustomerProfile.css';
 
 function CustomerProfile() {
@@ -11,7 +11,15 @@ function CustomerProfile() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pendingDocType, setPendingDocType] = useState(null);
+  const [sendingEmail, setSendingEmail] = useState(false);
   const docFileInputRef = useRef(null);
+
+  // Verify-email modal
+  const [verifyModalOpen, setVerifyModalOpen] = useState(false);
+  const [tokenInput, setTokenInput] = useState('');
+  const [verifyStatus, setVerifyStatus] = useState('idle'); // 'idle' | 'loading' | 'success' | 'error'
+  const [verifyError, setVerifyError] = useState('');
+  const tokenInputRef = useRef(null);
 
   const DOC_TYPES = [
     { key: 'cnh',                field: 'cnh',                 label: 'CNH' },
@@ -70,6 +78,53 @@ function CustomerProfile() {
     }
   };
 
+  const openVerifyModal = () => {
+    setTokenInput('');
+    setVerifyStatus('idle');
+    setVerifyError('');
+    setVerifyModalOpen(true);
+    setTimeout(() => tokenInputRef.current?.focus(), 80);
+  };
+
+  const closeVerifyModal = () => {
+    if (verifyStatus === 'loading') return;
+    setVerifyModalOpen(false);
+    setVerifyStatus('idle');
+    setTokenInput('');
+    setVerifyError('');
+  };
+
+  const handleSendVerificationEmail = async () => {
+    if (sendingEmail) return;
+    try {
+      setSendingEmail(true);
+      await userService.sendVerificationEmail(user.userId);
+      toast.success('E-mail de verificação enviado! Cole o token abaixo.');
+      openVerifyModal();
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.response?.data || 'Erro ao enviar e-mail de verificação.';
+      toast.error(typeof msg === 'string' ? msg : 'Erro ao enviar e-mail de verificação.');
+    } finally {
+      setSendingEmail(false);
+    }
+  };
+
+  const handleVerifyToken = async () => {
+    const t = tokenInput.trim();
+    if (!t) return;
+    setVerifyStatus('loading');
+    setVerifyError('');
+    try {
+      await userService.verifyEmail(t);
+      setVerifyStatus('success');
+      await loadProfile();
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.response?.data || 'Token inválido ou já utilizado.';
+      setVerifyError(typeof msg === 'string' ? msg : 'Erro ao verificar e-mail.');
+      setVerifyStatus('error');
+    }
+  };
+
   if (loading) {
     return (
       <div className="customer-profile">
@@ -107,9 +162,20 @@ function CustomerProfile() {
         <div className="cp-header-info">
           <h1>{profile.name}</h1>
           <p className="cp-email">{profile.email}</p>
-          <span className="cp-role-badge">
-            <FiShield /> Locador
-          </span>
+          <div className="cp-header-badges">
+            <span className="cp-role-badge">
+              <FiShield /> Locador
+            </span>
+            {profile.emailVerified ? (
+              <span className="cp-email-badge verified">
+                <FiCheckCircle /> E-mail verificado
+              </span>
+            ) : (
+              <span className="cp-email-badge unverified">
+                <FiAlertCircle /> E-mail não verificado
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -160,7 +226,21 @@ function CustomerProfile() {
         <div className="cp-fields">
           <div className="cp-field">
             <span className="cp-field-label">E-mail</span>
-            <span className="cp-field-value">{profile.email}</span>
+            <div className="cp-field-email-row">
+              <span className="cp-field-value">{profile.email}</span>
+              {profile.emailVerified ? (
+                <span className="cp-email-status verified"><FiCheckCircle /> Verificado</span>
+              ) : (
+                <button
+                  className="cp-verify-btn"
+                  onClick={handleSendVerificationEmail}
+                  disabled={sendingEmail}
+                  title="Enviar e-mail de verificação"
+                >
+                  <FiSend /> {sendingEmail ? 'Enviando…' : 'Verificar e-mail'}
+                </button>
+              )}
+            </div>
           </div>
           <div className="cp-field">
             <span className="cp-field-label">Telefone</span>
@@ -254,6 +334,62 @@ function CustomerProfile() {
           onChange={handleDocFileChange}
         />
       </div>
+
+      {/* ---- Verify-email modal ---- */}
+      {verifyModalOpen && (
+        <div className="ve-modal-overlay" onClick={closeVerifyModal}>
+          <div className="ve-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="ve-modal-close" onClick={closeVerifyModal} disabled={verifyStatus === 'loading'}>
+              <FiX />
+            </button>
+
+            {verifyStatus !== 'success' ? (
+              <>
+                <div className="ve-modal-icon">
+                  <FiKey />
+                </div>
+                <h3 className="ve-modal-title">Verificar e-mail</h3>
+                <p className="ve-modal-desc">
+                  Enviamos um token para <strong>{profile.email}</strong>.<br />
+                  Cole-o abaixo para confirmar seu endereço.
+                </p>
+
+                {verifyError && (
+                  <div className="ve-modal-error">{verifyError}</div>
+                )}
+
+                <input
+                  ref={tokenInputRef}
+                  className="ve-modal-input"
+                  type="text"
+                  placeholder="Cole o token aqui…"
+                  value={tokenInput}
+                  onChange={(e) => setTokenInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleVerifyToken()}
+                  disabled={verifyStatus === 'loading'}
+                />
+
+                <button
+                  className="ve-modal-btn"
+                  onClick={handleVerifyToken}
+                  disabled={!tokenInput.trim() || verifyStatus === 'loading'}
+                >
+                  {verifyStatus === 'loading' ? 'Verificando…' : 'Confirmar'}
+                </button>
+              </>
+            ) : (
+              <>
+                <div className="ve-modal-icon success">
+                  <FiCheckCircle />
+                </div>
+                <h3 className="ve-modal-title">E-mail verificado!</h3>
+                <p className="ve-modal-desc">Seu endereço de e-mail foi confirmado com sucesso.</p>
+                <button className="ve-modal-btn" onClick={closeVerifyModal}>Fechar</button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

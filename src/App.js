@@ -22,6 +22,7 @@ import CustomerHome from './pages/CustomerHome/CustomerHome';
 import CustomerProfile from './pages/CustomerProfile/CustomerProfile';
 import MyContracts from './pages/MyContracts/MyContracts';
 import MyContractDetail from './pages/MyContracts/MyContractDetail';
+import VerifyEmail from './pages/VerifyEmail/VerifyEmail';
 import './App.css';
 
 /** Routes only accessible by ADMIN */
@@ -32,17 +33,12 @@ function AdminRoute({ children }) {
 }
 
 function AppRoutes() {
-  const { isAuthenticated, isAdmin, loading } = useAuth();
-
-  if (loading) return null;
+  const { isAdmin } = useAuth();
 
   return (
     <Routes>
       {/* Public pages */}
-      <Route
-        path="/"
-        element={isAuthenticated ? <Navigate to="/painel" replace /> : <Landing />}
-      />
+      <Route path="/" element={<Landing />} />
       <Route path="/planos/mensal" element={<PlanMensal />} />
       <Route path="/planos/quinzenal" element={<PlanQuinzenal />} />
 
@@ -78,6 +74,7 @@ function AppRoutes() {
         <Route path="/minha-conta" element={<CustomerProfile />} />
         <Route path="/meus-contratos" element={<MyContracts />} />
         <Route path="/meus-contratos/:id" element={<MyContractDetail />} />
+        <Route path="/verificar-email" element={<VerifyEmail />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

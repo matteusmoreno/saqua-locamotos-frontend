@@ -177,6 +177,10 @@ function MotorcycleDetail() {
               <span className="label">Chassi</span>
               <span className="value">{moto.chassis}</span>
             </div>
+            <div className="info-row">
+              <span className="label">Quilometragem</span>
+              <span className="value">{moto.mileage != null ? `${moto.mileage.toLocaleString('pt-BR')} km` : '—'}</span>
+            </div>
           </div>
         </div>
 

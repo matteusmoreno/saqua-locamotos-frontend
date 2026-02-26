@@ -75,10 +75,6 @@ function Landing() {
   const contactRef = useRef(null);
 
   useEffect(() => {
-    if (isAuthenticated) navigate('/painel', { replace: true });
-  }, [isAuthenticated, navigate]);
-
-  useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -138,9 +134,15 @@ function Landing() {
           <button className="land-nav-link" onClick={() => scrollTo(howRef)}>Como Funciona</button>
           <button className="land-nav-link" onClick={() => scrollTo(benefitsRef)}>Vantagens</button>
           <button className="land-nav-link" onClick={() => scrollTo(contactRef)}>Contato</button>
-          <button className="land-nav-login" onClick={openLogin}>
-            <FiLogIn /> Entrar
-          </button>
+          {isAuthenticated ? (
+            <button className="land-nav-login" onClick={() => navigate('/painel')}>
+              <FiLogIn /> Ir para o Painel
+            </button>
+          ) : (
+            <button className="land-nav-login" onClick={openLogin}>
+              <FiLogIn /> Entrar
+            </button>
+          )}
         </div>
 
         <button className="land-nav-toggle" onClick={() => setMobileMenu(true)}>
@@ -160,9 +162,15 @@ function Landing() {
           <button className="land-mobile-link" onClick={() => scrollTo(benefitsRef)}>Vantagens</button>
           <button className="land-mobile-link" onClick={() => scrollTo(contactRef)}>Contato</button>
           <div className="land-mobile-actions">
-            <button className="land-nav-login" onClick={openLogin}>
-              <FiLogIn /> Entrar
-            </button>
+            {isAuthenticated ? (
+              <button className="land-nav-login" onClick={() => { setMobileMenu(false); navigate('/painel'); }}>
+                <FiLogIn /> Ir para o Painel
+              </button>
+            ) : (
+              <button className="land-nav-login" onClick={openLogin}>
+                <FiLogIn /> Entrar
+              </button>
+            )}
           </div>
         </div>
       )}

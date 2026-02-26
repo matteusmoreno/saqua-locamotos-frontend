@@ -56,6 +56,16 @@ const userService = {
     const response = await api.delete(`/users/${userId}/delete-documents?${query}`);
     return response.data;
   },
+
+  sendVerificationEmail: async (userId) => {
+    const response = await api.post(`/users/${userId}/send-verification-email`);
+    return response.data;
+  },
+
+  verifyEmail: async (token) => {
+    const response = await api.get(`/users/verify-email`, { params: { token } });
+    return response.data;
+  },
 };
 
 export default userService;

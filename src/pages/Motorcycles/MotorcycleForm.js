@@ -18,6 +18,7 @@ function MotorcycleForm() {
     year: '',
     color: '',
     chassis: '',
+    mileage: '',
     available: true,
   });
   const [loading, setLoading] = useState(false);
@@ -38,6 +39,7 @@ function MotorcycleForm() {
         year: data.year || '',
         color: data.color || '',
         chassis: data.chassis || '',
+        mileage: data.mileage ?? '',
         available: data.available ?? true,
       });
     } catch {
@@ -59,11 +61,15 @@ function MotorcycleForm() {
     setLoading(true);
 
     try {
+      const payload = {
+        ...form,
+        mileage: form.mileage !== '' ? parseInt(form.mileage, 10) : undefined,
+      };
       if (isEditing) {
-        await motorcycleService.update({ motorcycleId: id, ...form });
+        await motorcycleService.update({ motorcycleId: id, ...payload });
         toast.success('Moto atualizada com sucesso!');
       } else {
-        await motorcycleService.create(form);
+        await motorcycleService.create(payload);
         toast.success('Moto cadastrada com sucesso!');
       }
       navigate('/motos');
@@ -121,6 +127,18 @@ function MotorcycleForm() {
               <div className="form-group full-width">
                 <label>Chassi <span className="required">*</span></label>
                 <input name="chassis" value={form.chassis} onChange={handleChange} placeholder="Número do chassi" required />
+              </div>
+              <div className="form-group">
+                <label>Quilometragem <span className="required">*</span></label>
+                <input
+                  name="mileage"
+                  type="number"
+                  min="0"
+                  value={form.mileage}
+                  onChange={handleChange}
+                  placeholder="Ex: 15000"
+                  required
+                />
               </div>
             </div>
           </div>

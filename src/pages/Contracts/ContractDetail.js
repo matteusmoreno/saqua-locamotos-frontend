@@ -148,6 +148,15 @@ function ContractDetail() {
     }
   };
 
+  const handleGeneratePdf = async () => {
+    try {
+      await contractService.generatePdf(id);
+      toast.success('PDF gerado!');
+    } catch {
+      toast.error('Erro ao gerar PDF');
+    }
+  };
+
   if (loading) return <div className="loading-container"><div className="spinner" /></div>;
   if (!contract) return null;
 
@@ -185,6 +194,9 @@ function ContractDetail() {
               <>
                 <button className="btn-icon" title="Upload arquivo" onClick={() => fileInputRef.current?.click()}>
                   <FiUpload />
+                </button>
+                <button className="btn-icon" title="Gerar PDF do contrato" onClick={handleGeneratePdf}>
+                  <FiFileText />
                 </button>
                 <button className="btn-primary btn-sm" onClick={() => setShowFinishModal(true)}>
                   <FiCheck /> Finalizar
