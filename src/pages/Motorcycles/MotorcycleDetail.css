@@ -110,3 +110,143 @@
     font-size: 1.1rem;
   }
 }
+
+/* ── Motorcycle Financial Summary ── */
+.moto-fin-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.moto-fin-card {
+  background: var(--bg-elevated);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border-light);
+}
+
+.moto-fin-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.moto-fin-card.positive .moto-fin-card-icon { background: rgba(52,211,153,0.12); color: var(--success); }
+.moto-fin-card.negative .moto-fin-card-icon { background: rgba(248,113,113,0.12); color: var(--danger); }
+.moto-fin-card.earnings .moto-fin-card-icon { background: rgba(52,211,153,0.12); color: var(--success); }
+.moto-fin-card.expenses .moto-fin-card-icon { background: rgba(251,191,36,0.12);  color: var(--warning); }
+
+.moto-fin-card-label {
+  display: block;
+  font-size: 0.71rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.moto-fin-card-value {
+  display: block;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-top: 2px;
+}
+
+.moto-fin-card.positive .moto-fin-card-value { color: var(--success); }
+.moto-fin-card.negative .moto-fin-card-value { color: var(--danger); }
+
+/* ── Expense List in Moto Detail ── */
+.moto-expense-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.moto-expense-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 20px;
+  border-bottom: 1px solid var(--border-light);
+  gap: 12px;
+  transition: background 0.15s;
+}
+
+.moto-expense-item:last-child {
+  border-bottom: none;
+}
+
+.moto-expense-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.moto-expense-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.moto-expense-left h4 {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.moto-expense-left p {
+  font-size: 0.71rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.moto-expense-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.moto-expense-amount {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.moto-expense-status {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.moto-expense-method {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .moto-fin-summary {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .moto-expense-right {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}

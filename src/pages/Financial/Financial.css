@@ -574,3 +574,410 @@
     max-width: 160px;
   }
 }
+
+/* ======== EXPENSE ADDITIONS ======== */
+
+/* Section title divider */
+.fin-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 2px 0;
+}
+
+/* New KPI card variants */
+.fin-kpi-card.expense-paid .fin-kpi-icon  { background: rgba(251,191,36,0.12); color: var(--warning); }
+.fin-kpi-card.expense-pending .fin-kpi-icon { background: rgba(96,165,250,0.12); color: var(--info, #60a5fa); }
+.fin-kpi-card.expense-overdue .fin-kpi-icon { background: rgba(248,113,113,0.12); color: var(--danger); }
+.fin-kpi-card.net-positive .fin-kpi-icon  { background: rgba(52,211,153,0.12); color: var(--success); }
+.fin-kpi-card.net-negative .fin-kpi-icon  { background: rgba(248,113,113,0.12); color: var(--danger); }
+.fin-kpi-card.net-negative .fin-kpi-value { color: var(--danger); }
+.fin-kpi-card.net-positive .fin-kpi-value { color: var(--success); }
+.fin-kpi-card.expense-overdue .fin-kpi-value { color: var(--danger); }
+
+/* ── Expense Type Breakdown ── */
+.fin-expense-type-list {
+  padding: 8px 0;
+}
+
+.fin-expense-type-item {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.fin-expense-type-item:last-child {
+  border-bottom: none;
+}
+
+.fin-expense-type-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.fin-expense-type-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.fin-expense-type-label {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.fin-expense-type-count {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+}
+
+.fin-expense-type-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.fin-expense-type-bar-bg {
+  height: 6px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.fin-expense-type-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.5s ease;
+  min-width: 3px;
+  opacity: 0.85;
+}
+
+.fin-expense-type-sub {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Expense badges */
+.fin-expense-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 0.68rem;
+  font-weight: 600;
+}
+
+.fin-expense-badge.paid    { background: rgba(52,211,153,0.12);  color: var(--success); }
+.fin-expense-badge.pending { background: rgba(96,165,250,0.12);  color: var(--info, #60a5fa); }
+.fin-expense-badge.overdue { background: rgba(248,113,113,0.12); color: var(--danger); }
+
+/* ── Expense Row ── */
+.fin-expense-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border-light);
+  transition: var(--transition);
+  gap: 12px;
+}
+
+.fin-expense-item:last-child {
+  border-bottom: none;
+}
+
+.fin-expense-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.fin-expense-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.fin-expense-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.fin-expense-left h4 {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fin-expense-desc {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.fin-expense-left p {
+  font-size: 0.71rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
+}
+
+.fin-expense-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.fin-expense-amount {
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.fin-expense-status {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.fin-expense-status.paid    { background: rgba(52,211,153,0.12);  color: var(--success); }
+.fin-expense-status.pending { background: rgba(96,165,250,0.12);  color: var(--info, #60a5fa); }
+.fin-expense-status.overdue { background: rgba(248,113,113,0.12); color: var(--danger); }
+
+/* ── Action Buttons ── */
+.fin-btn-register {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius);
+  border: none;
+  background: rgba(52,211,153,0.12);
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.fin-btn-register:hover {
+  background: rgba(52,211,153,0.25);
+  transform: scale(1.1);
+}
+
+.fin-btn-delete {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius);
+  border: none;
+  background: rgba(248,113,113,0.10);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.fin-btn-delete:hover {
+  background: rgba(248,113,113,0.22);
+  color: var(--danger);
+}
+
+.fin-btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,195,14,0.2);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.fin-btn-add:hover {
+  background: var(--primary-bg-hover);
+}
+
+/* ── Modals ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fin-fade-in 0.2s ease;
+}
+
+@keyframes fin-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal-box {
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xl);
+  width: 100%;
+  max-width: 560px;
+  animation: fin-slide-up 0.25s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-box--sm {
+  max-width: 420px;
+}
+
+@keyframes fin-slide-up {
+  from { transform: translateY(16px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.modal-close {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--bg-elevated);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: var(--transition);
+}
+
+.modal-close:hover {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.modal-expense-info {
+  padding: 16px 20px;
+  background: var(--bg-elevated);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-expense-info p {
+  font-size: 0.83rem;
+  color: var(--text-secondary);
+}
+
+.modal-form {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.modal-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.modal-form select,
+.modal-form input {
+  padding: 9px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modal-form select:focus,
+.modal-form input:focus {
+  border-color: var(--primary);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+@media (max-width: 600px) {
+  .modal-form .form-row {
+    grid-template-columns: 1fr;
+  }
+  .fin-expense-right {
+    flex-wrap: wrap;
+  }
+  .fin-expense-left p {
+    max-width: 160px;
+  }
+}

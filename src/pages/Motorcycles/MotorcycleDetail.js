@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   FiArrowLeft, FiEdit2, FiTruck, FiFileText, FiUpload, FiTrash2,
-  FiChevronRight, FiCheckCircle, FiXCircle
+  FiChevronRight, FiCheckCircle, FiXCircle,
+  FiDollarSign, FiTool, FiTrendingUp, FiTrendingDown, FiAlertTriangle, FiInbox,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import motorcycleService from '../../services/motorcycleService';
@@ -250,6 +251,88 @@ function MotorcycleDetail() {
           ))
         )}
       </div>
+
+      {/* Financial Summary */}
+      {moto.financial && (
+        <div className="contracts-section">
+          <div className="section-header">
+            <h2><FiDollarSign style={{ marginRight: 8, verticalAlign: 'middle' }} />Financeiro</h2>
+          </div>
+
+          {/* Summary Cards */}
+          <div className="moto-fin-summary">
+            <div className={`moto-fin-card ${(moto.financial.total || 0) >= 0 ? 'positive' : 'negative'}`}>
+              <div className="moto-fin-card-icon">
+                {(moto.financial.total || 0) >= 0 ? <FiTrendingUp /> : <FiTrendingDown />}
+              </div>
+              <div>
+                <span className="moto-fin-card-label">Saldo Líquido</span>
+                <span className="moto-fin-card-value">{formatCurrency(moto.financial.total || 0)}</span>
+              </div>
+            </div>
+            <div className="moto-fin-card earnings">
+              <div className="moto-fin-card-icon"><FiTrendingUp /></div>
+              <div>
+                <span className="moto-fin-card-label">Receitas Pagas</span>
+                <span className="moto-fin-card-value">
+                  {formatCurrency(
+                    (moto.financial.earnings || []).filter(e => e.status === 'PAID').reduce((s, e) => s + (e.amount || 0), 0)
+                  )}
+                </span>
+              </div>
+            </div>
+            <div className="moto-fin-card expenses">
+              <div className="moto-fin-card-icon"><FiTool /></div>
+              <div>
+                <span className="moto-fin-card-label">Despesas Pagas</span>
+                <span className="moto-fin-card-value">
+                  {formatCurrency(
+                    (moto.financial.expenses || []).filter(e => e.status === 'PAID').reduce((s, e) => s + (e.amount || 0), 0)
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Expenses list */}
+          {(moto.financial.expenses || []).length === 0 ? (
+            <div className="empty-state">
+              <FiInbox />
+              <p>Nenhuma despesa registrada para esta moto</p>
+            </div>
+          ) : (
+            <div className="moto-expense-list">
+              {[...(moto.financial.expenses || [])]
+                .sort((a, b) => new Date(b.createdAt || b.dueDate) - new Date(a.createdAt || a.dueDate))
+                .map((expense, idx) => {
+                  const statusColor = expense.status === 'PAID' ? 'var(--success)' : expense.status === 'OVERDUE' ? 'var(--danger)' : 'var(--warning)';
+                  const statusLabel = expense.status === 'PAID' ? 'Paga' : expense.status === 'PENDING' ? 'Pendente' : 'Vencida';
+                  const typeLabels = { MAINTENANCE: 'Manutenção', UTILITIES: 'Utilidades', TAXES: 'Impostos', INSURANCE: 'Seguro', OTHER: 'Outros' };
+                  return (
+                    <div key={idx} className="moto-expense-item">
+                      <div className="moto-expense-left">
+                        <FiTool style={{ color: 'var(--warning)', flexShrink: 0 }} />
+                        <div>
+                          <h4>{typeLabels[expense.type] || expense.type}{expense.description && <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}> — {expense.description}</span>}</h4>
+                          <p>Vence: {formatDate(expense.dueDate)}{expense.paidDate && ` · Pago: ${formatDate(expense.paidDate)}`}</p>
+                        </div>
+                      </div>
+                      <div className="moto-expense-right">
+                        <span className="moto-expense-amount">{formatCurrency(expense.amount)}</span>
+                        <span className="moto-expense-status" style={{ background: statusColor + '22', color: statusColor }}>
+                          {statusLabel}
+                        </span>
+                        {expense.method && (
+                          <span className="moto-expense-method">{{ PIX: 'Pix', CASH: 'Dinheiro', CARD: 'Cartão' }[expense.method] || expense.method}</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -3,32 +3,68 @@ import { useNavigate } from 'react-router-dom';
 import {
   FiDollarSign, FiTrendingUp, FiAlertTriangle, FiCheckCircle,
   FiTruck, FiCalendar, FiInbox, FiBarChart2, FiPieChart, FiFileText,
+  FiTool, FiPlus, FiX, FiCreditCard, FiTrendingDown,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import contractService from '../../services/contractService';
 import paymentService from '../../services/paymentService';
-import {
-  formatCurrency, formatDate,
-} from '../../utils/formatters';
+import motorcycleService from '../../services/motorcycleService';
+import expenseService from '../../services/expenseService';
+import { formatCurrency, formatDate } from '../../utils/formatters';
 import './Financial.css';
+
+const EXPENSE_TYPE_LABELS = {
+  MAINTENANCE: 'Manutenção',
+  UTILITIES: 'Utilidades',
+  TAXES: 'Impostos',
+  INSURANCE: 'Seguro',
+  OTHER: 'Outros',
+};
+
+const EXPENSE_TYPE_COLORS = {
+  MAINTENANCE: 'var(--warning)',
+  UTILITIES: 'var(--info, #3b82f6)',
+  TAXES: 'var(--danger)',
+  INSURANCE: 'var(--primary)',
+  OTHER: 'var(--text-muted)',
+};
+
+const PAYMENT_METHOD_LABELS = {
+  PIX: 'Pix',
+  CASH: 'Dinheiro',
+  CARD: 'Cartão',
+};
 
 function Financial() {
   const [contracts, setContracts] = useState([]);
+  const [motorcycles, setMotorcycles] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
+  // Expense modal state
+  const [showCreateExpense, setShowCreateExpense] = useState(false);
+  const [showRegisterExpense, setShowRegisterExpense] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState(null);
+  const [expenseForm, setExpenseForm] = useState({
+    motorcycleId: '', type: 'MAINTENANCE', amount: '', method: 'PIX', description: '', dueDate: '',
+  });
+  const [registerForm, setRegisterForm] = useState({ expenseId: '', method: 'PIX' });
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadData = async () => {
     try {
-      const data = await contractService.findAll();
-      const contracts = Array.isArray(data) ? data : [];
-
-      // Enrich each contract with its payments (now a separate entity)
+      const [contractsData, motorcyclesData] = await Promise.all([
+        contractService.findAll(),
+        motorcycleService.findAll(),
+      ]);
+      const rawContracts = Array.isArray(contractsData) ? contractsData : [];
       const enriched = await Promise.all(
-        contracts.map(async (contract) => {
+        rawContracts.map(async (contract) => {
           try {
             const payments = await paymentService.findByContractId(contract.contractId);
             return { ...contract, payments: Array.isArray(payments) ? payments : [] };
@@ -38,6 +74,7 @@ function Financial() {
         })
       );
       setContracts(enriched);
+      setMotorcycles(Array.isArray(motorcyclesData) ? motorcyclesData : []);
     } catch (error) {
       console.error('Erro ao carregar dados financeiros:', error);
       toast.error('Erro ao carregar dados financeiros');
@@ -62,6 +99,33 @@ function Financial() {
   const pendingFinePayments = finePayments.filter((p) => p.status !== 'PAID');
   const totalFinesReceived = paidFinePayments.reduce((sum, p) => sum + (p.amount || 0), 0);
   const totalFinesPending = pendingFinePayments.reduce((sum, p) => sum + (p.amount || 0), 0);
+
+  // ---- Expense metrics (from motorcycle.financial.expenses) ----
+  const allExpenses = motorcycles.flatMap((m) =>
+    ((m.financial && m.financial.expenses) || []).map((e) => ({ ...e, motorcycle: m }))
+  );
+  const paidExpenses    = allExpenses.filter((e) => e.status === 'PAID');
+  const pendingExpenses = allExpenses.filter((e) => e.status === 'PENDING');
+  const overdueExpenses = allExpenses.filter((e) => e.status === 'OVERDUE');
+
+  const totalExpensesPaid    = paidExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+  const totalExpensesPending = pendingExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+  const totalExpensesOverdue = overdueExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+  const netBalance           = totalReceived - totalExpensesPaid;
+
+  // Expenses grouped by type
+  const expensesByType = {};
+  allExpenses.forEach((e) => {
+    if (!expensesByType[e.type]) expensesByType[e.type] = { paid: 0, pending: 0, overdue: 0, count: 0 };
+    expensesByType[e.type].count += 1;
+    if (e.status === 'PAID')         expensesByType[e.type].paid    += e.amount || 0;
+    else if (e.status === 'PENDING') expensesByType[e.type].pending += e.amount || 0;
+    else if (e.status === 'OVERDUE') expensesByType[e.type].overdue += e.amount || 0;
+  });
+  const expenseTypeList = Object.entries(expensesByType)
+    .map(([type, data]) => ({ type, ...data, total: data.paid + data.pending + data.overdue }))
+    .sort((a, b) => b.total - a.total);
+  const maxExpenseType = expenseTypeList[0]?.total || 1;
 
   // Revenue per motorcycle
   const motoRevenue = {};
@@ -110,6 +174,56 @@ function Financial() {
   const pctPending = Math.round((totalPending / revenueBase) * 100);
   const pctOverdue = Math.max(100 - pctReceived - pctPending, 0);
 
+  // ---- Expense modal handlers ----
+  const handleCreateExpense = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await expenseService.create({ ...expenseForm, amount: parseFloat(expenseForm.amount) });
+      toast.success('Despesa criada com sucesso!');
+      setShowCreateExpense(false);
+      setExpenseForm({ motorcycleId: '', type: 'MAINTENANCE', amount: '', method: 'PIX', description: '', dueDate: '' });
+      await loadData();
+    } catch {
+      toast.error('Erro ao criar despesa');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleRegisterExpense = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await expenseService.registerExpense({ expenseId: registerForm.expenseId, method: registerForm.method });
+      toast.success('Despesa registrada como paga!');
+      setShowRegisterExpense(false);
+      setSelectedExpense(null);
+      await loadData();
+    } catch {
+      toast.error('Erro ao registrar pagamento da despesa');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleOpenRegister = (expense) => {
+    setSelectedExpense(expense);
+    setRegisterForm({ expenseId: expense.expenseId, method: expense.method || 'PIX' });
+    setShowRegisterExpense(true);
+  };
+
+  const handleDeleteExpense = async (expenseId) => {
+    if (!window.confirm('Tem certeza que deseja excluir esta despesa?')) return;
+    try {
+      await expenseService.deleteExpense(expenseId);
+      toast.success('Despesa excluída');
+      await loadData();
+    } catch {
+      toast.error('Erro ao excluir despesa');
+    }
+  };
+
   if (loading) {
     return <div className="loading-container"><div className="spinner" /></div>;
   }
@@ -119,11 +233,19 @@ function Financial() {
       <div className="page-header">
         <div>
           <h1>Financeiro</h1>
-          <span className="page-header-sub">{contracts.length} contratos · {allPayments.length} pagamentos</span>
+          <span className="page-header-sub">
+            {contracts.length} contratos · {allPayments.length} pagamentos · {allExpenses.length} despesas
+          </span>
         </div>
+        <button className="btn-primary" onClick={() => setShowCreateExpense(true)}>
+          <FiPlus style={{ marginRight: 6 }} /> Nova Despesa
+        </button>
       </div>
 
-      {/* KPI Cards */}
+      {/* ── RECEITAS KPIs ── */}
+      <div className="fin-section-title">
+        <FiTrendingUp style={{ marginRight: 6 }} /> Receitas
+      </div>
       <div className="fin-kpi-grid">
         <div className="fin-kpi-card success">
           <div className="fin-kpi-icon"><FiCheckCircle /></div>
@@ -154,7 +276,52 @@ function Financial() {
           <div className="fin-kpi-info">
             <span className="fin-kpi-label">Multas</span>
             <span className="fin-kpi-value">{formatCurrency(totalFinesReceived)}</span>
-            <span className="fin-kpi-sub">{pendingFinePayments.length > 0 ? `${pendingFinePayments.length} pendente(s) — ${formatCurrency(totalFinesPending)}` : `${paidFinePayments.length} cobradas`}</span>
+            <span className="fin-kpi-sub">
+              {pendingFinePayments.length > 0
+                ? `${pendingFinePayments.length} pendente(s) — ${formatCurrency(totalFinesPending)}`
+                : `${paidFinePayments.length} cobradas`}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── DESPESAS & SALDO KPIs ── */}
+      <div className="fin-section-title">
+        <FiTrendingDown style={{ marginRight: 6 }} /> Despesas &amp; Saldo
+      </div>
+      <div className="fin-kpi-grid">
+        <div className="fin-kpi-card expense-paid">
+          <div className="fin-kpi-icon"><FiTool /></div>
+          <div className="fin-kpi-info">
+            <span className="fin-kpi-label">Despesas Pagas</span>
+            <span className="fin-kpi-value">{formatCurrency(totalExpensesPaid)}</span>
+            <span className="fin-kpi-sub">{paidExpenses.length} despesas</span>
+          </div>
+        </div>
+        <div className="fin-kpi-card expense-pending">
+          <div className="fin-kpi-icon"><FiCalendar /></div>
+          <div className="fin-kpi-info">
+            <span className="fin-kpi-label">Despesas Pendentes</span>
+            <span className="fin-kpi-value">{formatCurrency(totalExpensesPending)}</span>
+            <span className="fin-kpi-sub">{pendingExpenses.length} pendentes</span>
+          </div>
+        </div>
+        <div className="fin-kpi-card expense-overdue">
+          <div className="fin-kpi-icon"><FiAlertTriangle /></div>
+          <div className="fin-kpi-info">
+            <span className="fin-kpi-label">Despesas Vencidas</span>
+            <span className="fin-kpi-value">{formatCurrency(totalExpensesOverdue)}</span>
+            <span className="fin-kpi-sub">{overdueExpenses.length} vencidas</span>
+          </div>
+        </div>
+        <div className={`fin-kpi-card ${netBalance >= 0 ? 'net-positive' : 'net-negative'}`}>
+          <div className="fin-kpi-icon">
+            {netBalance >= 0 ? <FiTrendingUp /> : <FiTrendingDown />}
+          </div>
+          <div className="fin-kpi-info">
+            <span className="fin-kpi-label">Saldo Líquido</span>
+            <span className="fin-kpi-value">{formatCurrency(netBalance)}</span>
+            <span className="fin-kpi-sub">Receitas pagas − Despesas pagas</span>
           </div>
         </div>
       </div>
@@ -191,7 +358,6 @@ function Financial() {
 
       {/* Main Grid: moto revenue + revenue split */}
       <div className="fin-grid">
-        {/* Revenue per motorcycle */}
         <div className="fin-section">
           <div className="fin-section-header">
             <h2><FiTruck style={{ marginRight: 8 }} />Motos que Mais Renderam</h2>
@@ -224,21 +390,18 @@ function Financial() {
           )}
         </div>
 
-        {/* Revenue Split + Contract Status */}
         <div className="fin-section">
           <div className="fin-section-header">
             <h2><FiPieChart style={{ marginRight: 8 }} />Distribuição de Receitas</h2>
           </div>
           <div className="fin-split-section">
-            {/* Segmented bar */}
             <div className="fin-split-bar-wrap">
               <div className="fin-split-bar">
                 <div className="fin-split-seg received" style={{ width: `${pctReceived}%` }} />
-                <div className="fin-split-seg pending" style={{ width: `${pctPending}%` }} />
-                <div className="fin-split-seg overdue" style={{ width: `${pctOverdue}%` }} />
+                <div className="fin-split-seg pending"  style={{ width: `${pctPending}%` }} />
+                <div className="fin-split-seg overdue"  style={{ width: `${pctOverdue}%` }} />
               </div>
             </div>
-            {/* Legend */}
             <div className="fin-split-legend">
               <div className="fin-split-item">
                 <span className="fin-split-dot received" />
@@ -266,16 +429,15 @@ function Financial() {
               </div>
             </div>
           </div>
-
-          {/* Contract Status Distribution */}
           <div className="fin-section-header" style={{ borderTop: '1px solid var(--border)', marginTop: 0 }}>
             <h2><FiFileText style={{ marginRight: 8 }} />Status dos Contratos</h2>
           </div>
           <div className="fin-status-rows">
-            {[{ label: 'Ativos', count: activeContracts, color: 'var(--success)' },
-              { label: 'Em Atraso', count: overdueCount, color: 'var(--warning)' },
-              { label: 'Finalizados', count: finishedCount, color: 'var(--info)' },
-              { label: 'Cancelados', count: cancelledCount, color: 'var(--danger)' },
+            {[
+              { label: 'Ativos',      count: activeContracts, color: 'var(--success)' },
+              { label: 'Em Atraso',   count: overdueCount,    color: 'var(--warning)' },
+              { label: 'Finalizados', count: finishedCount,   color: 'var(--info, #3b82f6)' },
+              { label: 'Cancelados',  count: cancelledCount,  color: 'var(--danger)' },
             ].map((row) => {
               const pct = contracts.length > 0 ? (row.count / contracts.length) * 100 : 0;
               return (
@@ -295,9 +457,8 @@ function Financial() {
         </div>
       </div>
 
-      {/* Bottom Grid: overdue + paid feed */}
+      {/* Overdue contracts + recent payments */}
       <div className="fin-grid">
-        {/* Overdue clients */}
         <div className="fin-section">
           <div className="fin-section-header">
             <h2><FiAlertTriangle style={{ marginRight: 8 }} />Locadores em Atraso</h2>
@@ -306,12 +467,15 @@ function Financial() {
             )}
           </div>
           {overdueContracts.length === 0 ? (
-            <div className="fin-section-empty"><FiCheckCircle style={{ color: 'var(--success)' }} /><p>Nenhum locador em atraso</p></div>
+            <div className="fin-section-empty">
+              <FiCheckCircle style={{ color: 'var(--success)' }} />
+              <p>Nenhum locador em atraso</p>
+            </div>
           ) : (
             <ul className="fin-overdue-list">
               {overdueContracts.map((contract) => {
-                const overduePaymentsCount = (contract.payments || []).filter((p) => p.status === 'OVERDUE').length;
-                const overdueTotal = (contract.payments || [])
+                const odCount = (contract.payments || []).filter((p) => p.status === 'OVERDUE').length;
+                const odTotal = (contract.payments || [])
                   .filter((p) => p.status === 'OVERDUE')
                   .reduce((s, p) => s + (p.amount || 0), 0);
                 return (
@@ -326,10 +490,10 @@ function Financial() {
                       </div>
                       <div>
                         <h4>{contract.user?.name || '—'}</h4>
-                        <p>{contract.motorcycle?.brand} {contract.motorcycle?.model} · {overduePaymentsCount} pag. atrasado{overduePaymentsCount > 1 ? 's' : ''}</p>
+                        <p>{contract.motorcycle?.brand} {contract.motorcycle?.model} · {odCount} pag. atrasado{odCount > 1 ? 's' : ''}</p>
                       </div>
                     </div>
-                    <span className="fin-overdue-amount">{formatCurrency(overdueTotal)}</span>
+                    <span className="fin-overdue-amount">{formatCurrency(odTotal)}</span>
                   </li>
                 );
               })}
@@ -337,7 +501,6 @@ function Financial() {
           )}
         </div>
 
-        {/* Recent paid payments */}
         <div className="fin-section">
           <div className="fin-section-header">
             <h2><FiTrendingUp style={{ marginRight: 8 }} />Últimos Recebimentos</h2>
@@ -361,7 +524,11 @@ function Financial() {
                       </div>
                       <div>
                         <h4>{payment.contract.user?.name || '—'}</h4>
-                        <p>{payment.contract.motorcycle?.brand} {payment.contract.motorcycle?.model} · {payment.description || 'Pagamento'} · {payment.paidDate ? formatDate(payment.paidDate) : formatDate(payment.dueDate)}</p>
+                        <p>
+                          {payment.contract.motorcycle?.brand} {payment.contract.motorcycle?.model}
+                          {' '}· {payment.description || 'Pagamento'}
+                          {' '}· {payment.paidDate ? formatDate(payment.paidDate) : formatDate(payment.dueDate)}
+                        </p>
                       </div>
                     </div>
                     <span className="fin-payment-amount">{formatCurrency(payment.amount)}</span>
@@ -371,8 +538,250 @@ function Financial() {
           )}
         </div>
       </div>
+
+      {/* ── DESPESAS SECTION ── */}
+      <div className="fin-grid">
+        <div className="fin-section">
+          <div className="fin-section-header">
+            <h2><FiTool style={{ marginRight: 8 }} />Despesas por Categoria</h2>
+            {allExpenses.length > 0 && (
+              <span className="fin-section-sub">{allExpenses.length} no total</span>
+            )}
+          </div>
+          {expenseTypeList.length === 0 ? (
+            <div className="fin-section-empty"><FiInbox /><p>Nenhuma despesa registrada</p></div>
+          ) : (
+            <div className="fin-expense-type-list">
+              {expenseTypeList.map(({ type, total, paid, pending, overdue, count }) => (
+                <div key={type} className="fin-expense-type-item">
+                  <div className="fin-expense-type-header">
+                    <span className="fin-expense-type-dot" style={{ background: EXPENSE_TYPE_COLORS[type] }} />
+                    <span className="fin-expense-type-label">{EXPENSE_TYPE_LABELS[type] || type}</span>
+                    <span className="fin-expense-type-count">{count}</span>
+                    <span className="fin-expense-type-value">{formatCurrency(total)}</span>
+                  </div>
+                  <div className="fin-expense-type-bar-bg">
+                    <div
+                      className="fin-expense-type-bar-fill"
+                      style={{ width: `${(total / maxExpenseType) * 100}%`, background: EXPENSE_TYPE_COLORS[type] }}
+                    />
+                  </div>
+                  {(pending > 0 || overdue > 0) && (
+                    <div className="fin-expense-type-sub">
+                      {paid > 0    && <span className="fin-expense-badge paid">Pago: {formatCurrency(paid)}</span>}
+                      {pending > 0 && <span className="fin-expense-badge pending">Pendente: {formatCurrency(pending)}</span>}
+                      {overdue > 0 && <span className="fin-expense-badge overdue">Vencido: {formatCurrency(overdue)}</span>}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="fin-section">
+          <div className="fin-section-header">
+            <h2><FiCreditCard style={{ marginRight: 8 }} />Despesas Recentes</h2>
+            <button className="fin-btn-add" onClick={() => setShowCreateExpense(true)}>
+              <FiPlus /> Nova
+            </button>
+          </div>
+          {allExpenses.length === 0 ? (
+            <div className="fin-section-empty"><FiInbox /><p>Nenhuma despesa registrada</p></div>
+          ) : (
+            <div className="fin-payments-list">
+              {[...allExpenses]
+                .sort((a, b) => new Date(b.createdAt || b.dueDate) - new Date(a.createdAt || a.dueDate))
+                .slice(0, 15)
+                .map((expense, idx) => (
+                  <div key={idx} className="fin-expense-item">
+                    <div className="fin-expense-left">
+                      <div
+                        className="fin-expense-avatar"
+                        style={{
+                          background: EXPENSE_TYPE_COLORS[expense.type] + '22',
+                          color: EXPENSE_TYPE_COLORS[expense.type],
+                        }}
+                      >
+                        <FiTool />
+                      </div>
+                      <div>
+                        <h4>
+                          {EXPENSE_TYPE_LABELS[expense.type] || expense.type}
+                          {expense.description && (
+                            <span className="fin-expense-desc"> — {expense.description}</span>
+                          )}
+                        </h4>
+                        <p>
+                          {expense.motorcycle?.brand} {expense.motorcycle?.model}
+                          {expense.motorcycle?.plate && ` · ${expense.motorcycle.plate.toUpperCase()}`}
+                          {' '}· Vence: {formatDate(expense.dueDate)}
+                          {expense.paidDate && ` · Pago: ${formatDate(expense.paidDate)}`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="fin-expense-right">
+                      <span className="fin-expense-amount" style={{ color: EXPENSE_TYPE_COLORS[expense.type] }}>
+                        {formatCurrency(expense.amount)}
+                      </span>
+                      <span className={`fin-expense-status ${expense.status?.toLowerCase()}`}>
+                        {expense.status === 'PAID' ? 'Paga' : expense.status === 'PENDING' ? 'Pendente' : 'Vencida'}
+                      </span>
+                      {expense.status !== 'PAID' && (
+                        <button
+                          className="fin-btn-register"
+                          onClick={() => handleOpenRegister(expense)}
+                          title="Registrar pagamento"
+                        >
+                          <FiCheckCircle />
+                        </button>
+                      )}
+                      <button
+                        className="fin-btn-delete"
+                        onClick={() => handleDeleteExpense(expense.expenseId)}
+                        title="Excluir despesa"
+                      >
+                        <FiX />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── CREATE EXPENSE MODAL ── */}
+      {showCreateExpense && (
+        <div className="modal-overlay" onClick={() => setShowCreateExpense(false)}>
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2><FiTool style={{ marginRight: 8 }} />Nova Despesa</h2>
+              <button className="modal-close" onClick={() => setShowCreateExpense(false)}><FiX /></button>
+            </div>
+            <form onSubmit={handleCreateExpense} className="modal-form">
+              <div className="form-row">
+                <label>
+                  Moto *
+                  <select
+                    required
+                    value={expenseForm.motorcycleId}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, motorcycleId: e.target.value })}
+                  >
+                    <option value="">Selecione...</option>
+                    {motorcycles.filter((m) => m.active !== false).map((m) => (
+                      <option key={m.motorcycleId} value={m.motorcycleId}>
+                        {m.brand} {m.model} — {m.plate?.toUpperCase()}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Categoria *
+                  <select
+                    required
+                    value={expenseForm.type}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, type: e.target.value })}
+                  >
+                    {Object.entries(EXPENSE_TYPE_LABELS).map(([k, v]) => (
+                      <option key={k} value={k}>{v}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <div className="form-row">
+                <label>
+                  Valor (R$) *
+                  <input
+                    type="number" step="0.01" min="0.01" required placeholder="0,00"
+                    value={expenseForm.amount}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, amount: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Data Vencimento *
+                  <input
+                    type="date" required
+                    value={expenseForm.dueDate}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, dueDate: e.target.value })}
+                  />
+                </label>
+              </div>
+              <div className="form-row">
+                <label>
+                  Método de Pagamento
+                  <select
+                    value={expenseForm.method}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, method: e.target.value })}
+                  >
+                    {Object.entries(PAYMENT_METHOD_LABELS).map(([k, v]) => (
+                      <option key={k} value={k}>{v}</option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Descrição
+                  <input
+                    type="text" placeholder="Opcional"
+                    value={expenseForm.description}
+                    onChange={(e) => setExpenseForm({ ...expenseForm, description: e.target.value })}
+                  />
+                </label>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={() => setShowCreateExpense(false)}>Cancelar</button>
+                <button type="submit" className="btn-primary" disabled={submitting}>
+                  {submitting ? 'Salvando...' : 'Criar Despesa'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── REGISTER EXPENSE MODAL ── */}
+      {showRegisterExpense && selectedExpense && (
+        <div className="modal-overlay" onClick={() => setShowRegisterExpense(false)}>
+          <div className="modal-box modal-box--sm" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2><FiCheckCircle style={{ marginRight: 8 }} />Registrar Pagamento</h2>
+              <button className="modal-close" onClick={() => setShowRegisterExpense(false)}><FiX /></button>
+            </div>
+            <div className="modal-expense-info">
+              <p><strong>Categoria:</strong> {EXPENSE_TYPE_LABELS[selectedExpense.type] || selectedExpense.type}</p>
+              <p><strong>Valor:</strong> <span style={{ color: 'var(--primary)', fontWeight: 700 }}>{formatCurrency(selectedExpense.amount)}</span></p>
+              {selectedExpense.description && <p><strong>Descrição:</strong> {selectedExpense.description}</p>}
+              <p>
+                <strong>Moto:</strong> {selectedExpense.motorcycle?.brand} {selectedExpense.motorcycle?.model}
+                {selectedExpense.motorcycle?.plate && ` — ${selectedExpense.motorcycle.plate.toUpperCase()}`}
+              </p>
+            </div>
+            <form onSubmit={handleRegisterExpense} className="modal-form">
+              <label>
+                Método de Pagamento *
+                <select
+                  required
+                  value={registerForm.method}
+                  onChange={(e) => setRegisterForm({ ...registerForm, method: e.target.value })}
+                >
+                  {Object.entries(PAYMENT_METHOD_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>{v}</option>
+                  ))}
+                </select>
+              </label>
+              <div className="modal-actions">
+                <button type="button" className="btn-secondary" onClick={() => setShowRegisterExpense(false)}>Cancelar</button>
+                <button type="submit" className="btn-primary" disabled={submitting}>
+                  {submitting ? 'Registrando...' : 'Confirmar Pagamento'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 export default Financial;
+
