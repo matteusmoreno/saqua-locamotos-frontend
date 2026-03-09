@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiEdit2, FiUser, FiMapPin, FiFileText, FiUpload, FiTrash2, FiChevronRight, FiExternalLink } from 'react-icons/fi';
+import {
+  FiArrowLeft, FiEdit2, FiUser, FiMapPin, FiFileText,
+  FiUpload, FiTrash2, FiChevronRight, FiExternalLink,
+  FiPhone, FiMail, FiCamera, FiBriefcase, FiCalendar,
+  FiCheckCircle, FiAlertCircle, FiHome,
+} from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import userService from '../../services/userService';
 import {
@@ -20,6 +25,7 @@ function CustomerDetail() {
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pendingDocType, setPendingDocType] = useState(null);
+  const [avatarHover, setAvatarHover] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -103,6 +109,37 @@ function CustomerDetail() {
     }
   };
 
+  /* Build Google Maps embed URL from address */
+  const getMapsEmbedUrl = (address) => {
+    if (!address) return null;
+    const q = encodeURIComponent(
+      `${address.street}, ${address.number}, ${address.neighborhood}, ${address.city} - ${address.state}, ${address.zipCode}, Brasil`
+    );
+    return `https://maps.google.com/maps?q=${q}&output=embed&z=16`;
+  };
+
+  const getMapsLinkUrl = (address) => {
+    if (!address) return null;
+    const q = encodeURIComponent(
+      `${address.street}, ${address.number}, ${address.neighborhood}, ${address.city} - ${address.state}`
+    );
+    return `https://maps.google.com/?q=${q}`;
+  };
+
+  /* Avatar initial color */
+  const AVATAR_COLORS = [
+    ['#7C3AED','#EDE9FE'],['#0EA5E9','#E0F2FE'],['#10B981','#D1FAE5'],
+    ['#F59E0B','#FEF3C7'],['#EF4444','#FEE2E2'],['#EC4899','#FCE7F3'],
+    ['#6366F1','#EEF2FF'],['#14B8A6','#CCFBF1'],
+  ];
+  const [avatarColor, avatarBg] = customer
+    ? AVATAR_COLORS[(customer.name?.charCodeAt(0) ?? 0) % AVATAR_COLORS.length]
+    : ['#FFC30E','#1a1500'];
+
+  const docsCount = customer?.documents
+    ? Object.values(customer.documents).filter(Boolean).length
+    : 0;
+
   if (loading) {
     return <div className="loading-container"><div className="spinner" /></div>;
   }
@@ -110,30 +147,77 @@ function CustomerDetail() {
   if (!customer) return null;
 
   return (
-    <div className="detail-page">
-      <button className="back-link" onClick={() => navigate('/locadores')}>
+    <div className="cd-page">
+
+      {/* ── Back ── */}
+      <button className="cd-back" onClick={() => navigate('/locadores')}>
         <FiArrowLeft /> Voltar para locadores
       </button>
 
-      {/* Profile Header */}
-      <div className="profile-header">
-        <div className="profile-header-body">
-          <div className="profile-avatar">
-            {customer.pictureUrl ? (
-              <img src={customer.pictureUrl} alt={customer.name} />
-            ) : (
-              customer.name?.charAt(0).toUpperCase()
-            )}
-          </div>
-          <div className="profile-info">
-            <h1>{customer.name}</h1>
-            <p>{customer.email} &middot; {formatPhone(customer.phone)}</p>
+      {/* ── Hero profile card ── */}
+      <div className="cd-hero">
+        <div className="cd-hero-stripe" />
+
+        {/* Avatar – clicável para upload */}
+        <div
+          className="cd-avatar-wrap"
+          onMouseEnter={() => setAvatarHover(true)}
+          onMouseLeave={() => setAvatarHover(false)}
+          onClick={() => fileInputRef.current?.click()}
+          title="Clique para alterar foto"
+        >
+          {customer.pictureUrl ? (
+            <img src={customer.pictureUrl} alt={customer.name} className="cd-avatar" />
+          ) : (
+            <div className="cd-avatar cd-avatar-initial" style={{ background: avatarBg, color: avatarColor }}>
+              {customer.name?.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <div className={`cd-avatar-overlay ${avatarHover ? 'visible' : ''}`}>
+            <FiCamera />
+            <span>Alterar foto</span>
           </div>
         </div>
-        <div className="profile-actions">
-          <button className="btn-icon" title="Upload foto" onClick={() => fileInputRef.current?.click()}>
-            <FiUpload />
-          </button>
+
+        <div className="cd-hero-body">
+          <div className="cd-hero-info">
+            <h1 className="cd-hero-name">{customer.name}</h1>
+            {customer.occupation && (
+              <span className="cd-hero-occupation">
+                <FiBriefcase /> {customer.occupation}
+              </span>
+            )}
+            <div className="cd-hero-contacts">
+              {customer.email && (
+                <a className="cd-hero-contact" href={`mailto:${customer.email}`}>
+                  <FiMail /> {customer.email}
+                </a>
+              )}
+              {customer.phone && (
+                <a className="cd-hero-contact" href={`tel:${customer.phone}`}>
+                  <FiPhone /> {formatPhone(customer.phone)}
+                </a>
+              )}
+            </div>
+          </div>
+
+          <div className="cd-hero-badges">
+            <div className="cd-badge">
+              <FiFileText />
+              <span>{contracts.length} contrato{contracts.length !== 1 ? 's' : ''}</span>
+            </div>
+            <div className={`cd-badge ${docsCount === DOC_TYPES.length ? 'success' : docsCount > 0 ? 'warning' : 'muted'}`}>
+              {docsCount === DOC_TYPES.length ? <FiCheckCircle /> : <FiAlertCircle />}
+              <span>{docsCount}/{DOC_TYPES.length} documentos</span>
+            </div>
+            <div className="cd-badge">
+              <FiCalendar />
+              <span>Desde {formatDate(customer.createdAt)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="cd-hero-actions">
           {customer.pictureUrl && (
             <button className="btn-icon" title="Remover foto" onClick={handleDeletePicture}>
               <FiTrash2 />
@@ -142,167 +226,221 @@ function CustomerDetail() {
           <button className="btn-primary btn-sm" onClick={() => navigate(`/locadores/editar/${id}`)}>
             <FiEdit2 /> Editar
           </button>
-          <input ref={fileInputRef} type="file" accept="image/*" className="upload-input" onChange={handleUploadPicture} />
         </div>
+
+        <input ref={fileInputRef} type="file" accept="image/*" className="upload-input" onChange={handleUploadPicture} />
       </div>
 
-      {/* Documents */}
-      <div className="contracts-section">
-        <div className="section-header">
-          <h2><FiFileText style={{ marginRight: 8, verticalAlign: 'middle' }} />Documentos</h2>
-          <span className="doc-count-badge">
-            {DOC_TYPES.filter((d) => customer.documents?.[d.field]).length}/{DOC_TYPES.length} enviados
-          </span>
-        </div>
-        <div className="doc-grid">
-          {DOC_TYPES.map((doc) => {
-            const url = customer.documents?.[doc.field];
-            return (
-              <div key={doc.key} className={`doc-card ${url ? 'sent' : 'missing'}`}>
-                <div className="doc-card-icon"><FiFileText /></div>
-                <div className="doc-card-info">
-                  <h4>{doc.label}</h4>
-                  {url ? (
-                    <a href={url} target="_blank" rel="noopener noreferrer" className="doc-view-link">
-                      <FiExternalLink /> Ver documento
-                    </a>
-                  ) : (
-                    <span className="doc-missing">Não enviado</span>
-                  )}
-                </div>
-                <div className="doc-card-actions">
-                  {url ? (
-                    <button className="btn-icon" title="Remover documento" onClick={() => handleDeleteDoc(doc.key)}>
-                      <FiTrash2 />
-                    </button>
-                  ) : (
-                    <button className="btn-icon" title="Enviar documento" onClick={() => handleUploadDoc(doc.key)}>
-                      <FiUpload />
-                    </button>
-                  )}
-                </div>
+      {/* ── Main content grid ── */}
+      <div className="cd-main-grid">
+
+        {/* ── Left column ── */}
+        <div className="cd-left-col">
+
+          {/* Personal Data */}
+          <div className="cd-card">
+            <div className="cd-card-header">
+              <div className="cd-card-header-icon"><FiUser /></div>
+              <h2>Dados Pessoais</h2>
+            </div>
+            <div className="cd-card-body">
+              <div className="cd-info-row">
+                <span className="cd-info-label">CPF</span>
+                <span className="cd-info-value mono">{formatCPF(customer.cpf)}</span>
               </div>
-            );
-          })}
-        </div>
-        <input
-          ref={docFileInputRef}
-          type="file"
-          accept=".pdf,image/*"
-          className="upload-input"
-          onChange={handleDocFileChange}
-        />
-      </div>
+              <div className="cd-info-row">
+                <span className="cd-info-label">RG</span>
+                <span className="cd-info-value">{customer.rg || '—'}</span>
+              </div>
+              <div className="cd-info-row">
+                <span className="cd-info-label">Profissão</span>
+                <span className="cd-info-value">{customer.occupation || '—'}</span>
+              </div>
+              <div className="cd-info-row">
+                <span className="cd-info-label">Estado Civil</span>
+                <span className="cd-info-value">{MARITAL_STATUS_LABELS[customer.maritalStatus] || '—'}</span>
+              </div>
+              <div className="cd-info-row">
+                <span className="cd-info-label">Cadastrado em</span>
+                <span className="cd-info-value">{formatDate(customer.createdAt)}</span>
+              </div>
+            </div>
+          </div>
 
-      <div className="info-grid">
-        {/* Personal Info */}
-        <div className="info-card">
-          <div className="info-card-header">
-            <FiUser />
-            <h3>Dados Pessoais</h3>
+          {/* Documents */}
+          <div className="cd-card">
+            <div className="cd-card-header">
+              <div className="cd-card-header-icon"><FiFileText /></div>
+              <h2>Documentos</h2>
+              <span className="cd-docs-counter">{docsCount}/{DOC_TYPES.length}</span>
+              <div className="cd-docs-progress">
+                <div className="cd-docs-progress-fill" style={{ width: `${(docsCount / DOC_TYPES.length) * 100}%` }} />
+              </div>
+            </div>
+            <div className="cd-doc-grid">
+              {DOC_TYPES.map((doc) => {
+                const url = customer.documents?.[doc.field];
+                return (
+                  <div key={doc.key} className={`cd-doc-item ${url ? 'sent' : 'missing'}`}>
+                    <div className="cd-doc-icon">
+                      {url ? <FiCheckCircle /> : <FiFileText />}
+                    </div>
+                    <div className="cd-doc-info">
+                      <span className="cd-doc-label">{doc.label}</span>
+                      {url ? (
+                        <a href={url} target="_blank" rel="noopener noreferrer" className="cd-doc-link">
+                          <FiExternalLink /> Ver doc
+                        </a>
+                      ) : (
+                        <span className="cd-doc-missing">Não enviado</span>
+                      )}
+                    </div>
+                    <button
+                      className="cd-doc-action"
+                      title={url ? 'Remover' : 'Enviar'}
+                      onClick={() => url ? handleDeleteDoc(doc.key) : handleUploadDoc(doc.key)}
+                    >
+                      {url ? <FiTrash2 /> : <FiUpload />}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            <input
+              ref={docFileInputRef}
+              type="file"
+              accept=".pdf,image/*"
+              className="upload-input"
+              onChange={handleDocFileChange}
+            />
           </div>
-          <div className="info-card-body">
-            <div className="info-row">
-              <span className="label">CPF</span>
-              <span className="value">{formatCPF(customer.cpf)}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">RG</span>
-              <span className="value">{customer.rg || '—'}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Profissão</span>
-              <span className="value">{customer.occupation || '—'}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Estado Civil</span>
-              <span className="value">{MARITAL_STATUS_LABELS[customer.maritalStatus] || '—'}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Cadastro</span>
-              <span className="value">{formatDate(customer.createdAt)}</span>
-            </div>
-          </div>
+
         </div>
 
-        {/* Address */}
-        <div className="info-card">
-          <div className="info-card-header">
-            <FiMapPin />
-            <h3>Endereço</h3>
-          </div>
-          <div className="info-card-body">
+        {/* ── Right column ── */}
+        <div className="cd-right-col">
+
+          {/* Address + Map */}
+          <div className="cd-card cd-card-address">
+            <div className="cd-card-header">
+              <div className="cd-card-header-icon"><FiHome /></div>
+              <h2>Endereço</h2>
+              {customer.address && (
+                <a
+                  href={getMapsLinkUrl(customer.address)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="cd-maps-link"
+                >
+                  <FiExternalLink /> Ver no Maps
+                </a>
+              )}
+            </div>
+
             {customer.address ? (
               <>
-                <div className="info-row">
-                  <span className="label">CEP</span>
-                  <span className="value">{formatCEP(customer.address.zipCode)}</span>
-                </div>
-                <div className="info-row">
-                  <span className="label">Rua</span>
-                  <span className="value">{customer.address.street || '—'}</span>
-                </div>
-                <div className="info-row">
-                  <span className="label">Número</span>
-                  <span className="value">{customer.address.number || '—'}</span>
-                </div>
-                <div className="info-row">
-                  <span className="label">Bairro</span>
-                  <span className="value">{customer.address.neighborhood || '—'}</span>
-                </div>
-                <div className="info-row">
-                  <span className="label">Cidade</span>
-                  <span className="value">{customer.address.city} - {customer.address.state}</span>
-                </div>
-                {customer.address.complement && (
-                  <div className="info-row">
-                    <span className="label">Complemento</span>
-                    <span className="value">{customer.address.complement}</span>
+                <div className="cd-card-body">
+                  <div className="cd-info-row">
+                    <span className="cd-info-label">CEP</span>
+                    <span className="cd-info-value mono">{formatCEP(customer.address.zipCode)}</span>
                   </div>
-                )}
+                  <div className="cd-info-row">
+                    <span className="cd-info-label">Logradouro</span>
+                    <span className="cd-info-value">{customer.address.street}, {customer.address.number}</span>
+                  </div>
+                  {customer.address.complement && (
+                    <div className="cd-info-row">
+                      <span className="cd-info-label">Complemento</span>
+                      <span className="cd-info-value">{customer.address.complement}</span>
+                    </div>
+                  )}
+                  <div className="cd-info-row">
+                    <span className="cd-info-label">Bairro</span>
+                    <span className="cd-info-value">{customer.address.neighborhood}</span>
+                  </div>
+                  <div className="cd-info-row">
+                    <span className="cd-info-label">Cidade / UF</span>
+                    <span className="cd-info-value">{customer.address.city} — {customer.address.state}</span>
+                  </div>
+                </div>
+
+                {/* Google Maps embed – dark mode */}
+                <div className="cd-map-wrap">
+                  <div className="cd-map-header">
+                    <FiMapPin /> {customer.address.street}, {customer.address.number} — {customer.address.city}/{customer.address.state}
+                  </div>
+                  <div className="cd-map-frame">
+                    <iframe
+                      title={`Localização de ${customer.name}`}
+                      src={getMapsEmbedUrl(customer.address)}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg)' }}
+                      allowFullScreen=""
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  </div>
+                  <a
+                    href={getMapsLinkUrl(customer.address)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="cd-map-open-btn"
+                  >
+                    <FiMapPin /> Abrir no Google Maps
+                  </a>
+                </div>
               </>
             ) : (
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', padding: '8px 0' }}>Endereço não cadastrado</p>
+              <div className="cd-empty-address">
+                <FiMapPin />
+                <p>Endereço não cadastrado</p>
+                <button className="btn-primary btn-sm" onClick={() => navigate(`/locadores/editar/${id}`)}>
+                  <FiEdit2 /> Adicionar endereço
+                </button>
+              </div>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* Contracts */}
-      <div className="contracts-section">
-        <div className="section-header">
-          <h2><FiFileText style={{ marginRight: 8, verticalAlign: 'middle' }} />Contratos</h2>
-        </div>
-        {contracts.length === 0 ? (
-          <div className="empty-state">
-            <FiFileText />
-            <p>Nenhum contrato encontrado</p>
-          </div>
-        ) : (
-          contracts.map((contract) => (
-            <div
-              key={contract.contractId}
-              className="contract-item"
-              onClick={() => navigate(`/contratos/${contract.contractId}`)}
-            >
-              <div className="contract-item-left">
-                <h4>{contract.motorcycle?.brand} {contract.motorcycle?.model} — {contract.motorcycle?.plate}</h4>
-                <p>
-                  {RENTAL_TYPE_LABELS[contract.rentalType]} &middot; {formatDate(contract.startDate)} a {formatDate(contract.endDate)} &middot; {formatCurrency(contract.weeklyAmount)}/semana
-                </p>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span
-                  className="status-badge"
-                  style={{ background: getStatusBgColor(contract.status), color: getStatusColor(contract.status) }}
-                >
-                  {CONTRACT_STATUS_LABELS[contract.status]}
-                </span>
-                <FiChevronRight style={{ color: 'var(--text-muted)' }} />
-              </div>
+          {/* Contracts */}
+          <div className="cd-card">
+            <div className="cd-card-header">
+              <div className="cd-card-header-icon"><FiFileText /></div>
+              <h2>Contratos</h2>
             </div>
-          ))
-        )}
+            {contracts.length === 0 ? (
+              <div className="cd-empty-contracts">
+                <FiFileText />
+                <p>Nenhum contrato encontrado</p>
+              </div>
+            ) : (
+              contracts.map((contract) => (
+                <div
+                  key={contract.contractId}
+                  className="cd-contract-item"
+                  onClick={() => navigate(`/contratos/${contract.contractId}`)}
+                >
+                  <div className="cd-contract-left">
+                    <h4>{contract.motorcycle?.brand} {contract.motorcycle?.model} — {contract.motorcycle?.plate}</h4>
+                    <p>
+                      {RENTAL_TYPE_LABELS[contract.rentalType]} &middot; {formatDate(contract.startDate)} a {formatDate(contract.endDate)} &middot; {formatCurrency(contract.weeklyAmount)}/sem
+                    </p>
+                  </div>
+                  <div className="cd-contract-right">
+                    <span
+                      className="status-badge"
+                      style={{ background: getStatusBgColor(contract.status), color: getStatusColor(contract.status) }}
+                    >
+                      {CONTRACT_STATUS_LABELS[contract.status]}
+                    </span>
+                    <FiChevronRight className="cd-contract-arrow" />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+        </div>
       </div>
     </div>
   );

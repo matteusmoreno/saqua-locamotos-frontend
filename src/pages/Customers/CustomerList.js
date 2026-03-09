@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  FiPlus, FiSearch, FiUsers, FiUserCheck, FiUserX,
-  FiChevronRight, FiFilter, FiX, FiPhone, FiMail,
+  FiPlus, FiSearch, FiUsers,
+  FiChevronRight, FiX, FiPhone, FiMail,
   FiGrid, FiList,
 } from 'react-icons/fi';
 import userService from '../../services/userService';
@@ -87,10 +87,6 @@ function CustomerList() {
     });
   }, [customers, search]);
 
-  const totalWithDocs = customers.filter(
-    (c) => c.documents && Object.values(c.documents).some(Boolean)
-  ).length;
-
   const clearSearch = () => setSearch('');
 
   if (loading) {
@@ -124,27 +120,7 @@ function CustomerList() {
             <span className="cl-kpi-label">Total de locadores</span>
           </div>
         </div>
-        <div className="cl-kpi">
-          <div className="cl-kpi-icon success"><FiUserCheck /></div>
-          <div className="cl-kpi-body">
-            <span className="cl-kpi-value">{totalWithDocs}</span>
-            <span className="cl-kpi-label">Com documentos</span>
-          </div>
-        </div>
-        <div className="cl-kpi">
-          <div className="cl-kpi-icon warning"><FiUserX /></div>
-          <div className="cl-kpi-body">
-            <span className="cl-kpi-value">{customers.length - totalWithDocs}</span>
-            <span className="cl-kpi-label">Sem documentos</span>
-          </div>
-        </div>
-        <div className="cl-kpi">
-          <div className="cl-kpi-icon info"><FiFilter /></div>
-          <div className="cl-kpi-body">
-            <span className="cl-kpi-value">{filtered.length}</span>
-            <span className="cl-kpi-label">Resultado da busca</span>
-          </div>
-        </div>
+
       </div>
 
       {/* ── Toolbar ── */}

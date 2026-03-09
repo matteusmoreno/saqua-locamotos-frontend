@@ -1,162 +1,360 @@
-.form-page {
-  max-width: 800px;
+/* ============================================================
+   CustomerForm — redesign profissional  (cf-* namespace)
+   ============================================================ */
+
+.cf-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 860px;
 }
 
-.form-card {
+/* ── Back ── */
+.cf-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: var(--transition);
+  width: fit-content;
+}
+.cf-back:hover { color: var(--text-primary); }
+
+/* ── Hero header ── */
+.cf-hero {
+  position: relative;
   background: var(--bg-card);
+  border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow);
-  border: 1px solid var(--border-light);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
   overflow: hidden;
-  position: relative;
 }
 
-.form-card::before {
-  content: '';
+.cf-hero-stripe {
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--primary), var(--primary-dark, #d4960a));
+  background: linear-gradient(90deg, var(--primary) 0%, rgba(255,195,14,0.2) 100%);
 }
 
-.form-card-header {
+.cf-hero-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 900;
+  flex-shrink: 0;
+  border: 3px solid var(--border);
+  transition: border-color 0.2s;
+}
+
+.cf-hero-avatar-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--primary);
+  flex-shrink: 0;
+  display: block;
+}
+
+.cf-hero-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cf-hero-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.4px;
+  line-height: 1.1;
+}
+
+.cf-hero-sub {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cf-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.76rem;
+  font-weight: 700;
+  background: var(--primary-bg);
+  color: var(--primary-dark);
+  border: 1px solid rgba(255,195,14,0.3);
+  flex-shrink: 0;
+}
+
+/* ── Section card ── */
+.cf-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.cf-section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   padding: 14px 20px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-main);
 }
 
-.form-card-header svg {
-  font-size: 1.1rem;
+.cf-section-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius);
+  background: var(--primary-bg);
   color: var(--primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
-.form-card-header h2 {
-  font-size: 1rem;
+.cf-section-header h2 {
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--text-primary);
+  line-height: 1.2;
 }
 
-.form-card-body {
+.cf-section-header p {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.cf-section-body {
   padding: 20px;
 }
 
-.form-grid {
+/* ── Grid ── */
+.cf-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
-.form-grid .full-width {
-  grid-column: 1 / -1;
-}
+.cf-full  { grid-column: 1 / -1; }
+.cf-short { max-width: 180px; }
 
-.form-group {
+/* ── Field ── */
+.cf-field {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.form-group label {
+.cf-field label {
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-secondary);
 }
 
-.form-group label .required {
+.cf-required {
   color: var(--danger);
   margin-left: 2px;
 }
 
-.form-group input,
-.form-group select {
-  padding: 10px 14px;
-  border: 2px solid var(--border);
+.cf-hint {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ── Input wrapper ── */
+.cf-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cf-input-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.cf-input-wrap input,
+.cf-input-wrap .cf-select {
+  width: 100%;
+  padding: 10px 14px 10px 36px;
+  border: 1.5px solid var(--border);
   border-radius: var(--radius);
   font-size: 0.875rem;
   color: var(--text-primary);
   background: var(--bg-input);
-  transition: var(--transition);
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
   outline: none;
-  width: 100%;
 }
 
-.form-group input:focus,
-.form-group select:focus {
+.cf-input-wrap input:focus,
+.cf-input-wrap .cf-select:focus {
   border-color: var(--primary);
   background: var(--bg-input-focus);
   box-shadow: 0 0 0 3px var(--primary-bg);
 }
 
-.form-group input::placeholder {
+.cf-input-wrap input::placeholder {
   color: var(--text-muted);
 }
 
-.form-group select {
-  cursor: pointer;
+.cf-input-wrap input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.cf-disabled .cf-input-icon { opacity: 0.4; }
+
+/* Select */
+.cf-select {
   appearance: none;
+  cursor: pointer;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
-  padding-right: 36px;
+  padding-right: 36px !important;
 }
 
-.form-actions {
+/* ── CEP row ── */
+.cf-cep-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cf-input-wrap-grow {
+  flex: 1;
+}
+
+.cf-cep-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.cf-cep-btn.active {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-bg);
+}
+.cf-cep-btn.active:hover {
+  background: rgba(255,195,14,0.15);
+}
+.cf-cep-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.cf-cep-btn.loading {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+/* ── Spinner ── */
+@keyframes cf-spin { to { transform: rotate(360deg); } }
+.cf-spin { animation: cf-spin 0.8s linear infinite; }
+
+/* ── Actions bar ── */
+.cf-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  padding: 16px 20px;
-  border-top: 1px solid var(--border);
+  padding: 16px 0 4px;
 }
 
-.form-section-title {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin: 8px 0 4px;
-  grid-column: 1 / -1;
-}
-
-/* Back Button */
-.back-link {
+.cf-btn-cancel {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  padding: 10px 22px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--text-muted);
-  margin-bottom: 16px;
   cursor: pointer;
-  background: none;
+  transition: var(--transition);
+}
+.cf-btn-cancel:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgba(239,68,68,0.06);
+}
+
+.cf-btn-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: var(--primary);
+  color: var(--bg-sidebar);
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: var(--radius);
   border: none;
   transition: var(--transition);
-  padding: 0;
+  cursor: pointer;
 }
-
-.back-link:hover {
-  color: var(--text-primary);
+.cf-btn-submit:hover:not(:disabled) {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
+.cf-btn-submit:active { transform: none; }
+.cf-btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
+/* ── Responsive ── */
 @media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .form-card-body {
-    padding: 16px;
-  }
-
-  .form-actions {
-    flex-direction: column-reverse;
-  }
-
-  .form-actions button {
-    width: 100%;
-    justify-content: center;
-  }
+  .cf-grid { grid-template-columns: 1fr; }
+  .cf-short { max-width: 100%; }
+  .cf-section-body { padding: 16px; }
+  .cf-hero { flex-wrap: wrap; gap: 14px; padding: 20px; }
+  .cf-hero-badge { display: none; }
+  .cf-actions { flex-direction: column-reverse; }
+  .cf-btn-cancel,
+  .cf-btn-submit { width: 100%; justify-content: center; }
 }
+
