@@ -26,7 +26,8 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/';
+      // Dispatch event so AuthContext can clear React state without a hard page reload
+      window.dispatchEvent(new Event('saqua:unauthorized'));
     }
     return Promise.reject(error);
   }

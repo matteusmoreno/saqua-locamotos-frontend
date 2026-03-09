@@ -34,15 +34,23 @@ function AdminRoute({ children }) {
 }
 
 function AppRoutes() {
-  const { isAdmin } = useAuth();
+  const { isAdmin, isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <div className="spinner" />
+      </div>
+    );
+  }
 
   return (
     <Routes>
-      {/* Public pages */}
-      <Route path="/" element={<Landing />} />
-      <Route path="/planos/mensal" element={<PlanMensal />} />
-      <Route path="/planos/quinzenal" element={<PlanQuinzenal />} />
-      <Route path="/esqueci-senha" element={<ForgotPassword />} />
+      {/* Public pages — redirect authenticated users to the panel */}
+      <Route path="/" element={isAuthenticated ? <Navigate to="/painel" replace /> : <Landing />} />
+      <Route path="/planos/mensal" element={isAuthenticated ? <Navigate to="/painel" replace /> : <PlanMensal />} />
+      <Route path="/planos/quinzenal" element={isAuthenticated ? <Navigate to="/painel" replace /> : <PlanQuinzenal />} />
+      <Route path="/esqueci-senha" element={isAuthenticated ? <Navigate to="/painel" replace /> : <ForgotPassword />} />
 
       {/* Authenticated area */}
       <Route
@@ -79,7 +87,7 @@ function AppRoutes() {
         <Route path="/verificar-email" element={<VerifyEmail />} />
       </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={isAuthenticated ? <Navigate to="/painel" replace /> : <Navigate to="/" replace />} />
     </Routes>
   );
 }

@@ -19,7 +19,7 @@ function Login() {
 
     try {
       await login(email, password);
-      navigate('/', { replace: true });
+      navigate('/painel', { replace: true });
     } catch (err) {
       setError('E-mail ou senha inválidos. Tente novamente.');
     } finally {

@@ -38,6 +38,17 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
+  // Listen for 401 events from the API interceptor and clear auth state
+  // without triggering a full page reload (which would destroy React context)
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      setToken(null);
+      setUser(null);
+    };
+    window.addEventListener('saqua:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('saqua:unauthorized', handleUnauthorized);
+  }, []);
+
   const login = useCallback(async (email, password) => {
     const data = await authService.login(email, password);
     const decoded = jwtDecode(data.token);

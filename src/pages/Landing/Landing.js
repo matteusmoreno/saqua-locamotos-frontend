@@ -8,21 +8,7 @@ import {
 } from 'react-icons/fi';
 import './Landing.css';
 
-/* ——— Motorcycle SVG Icon ——— */
-function MotoIcon({ size = 24, color = 'currentColor' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="10" cy="34" r="7" stroke={color} strokeWidth="3" fill="none"/>
-      <circle cx="38" cy="34" r="7" stroke={color} strokeWidth="3" fill="none"/>
-      <path d="M17 34H31" stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
-      <path d="M28 12H20L14 28H34L28 12Z" stroke={color} strokeWidth="2.5" strokeLinejoin="round" fill="none"/>
-      <path d="M20 24H12L10 34" stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
-      <path d="M28 24H36L38 34" stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
-      <path d="M28 12L32 6H38" stroke={color} strokeWidth="2.5" strokeLinecap="round"/>
-      <circle cx="38" cy="6" r="2" fill={color}/>
-    </svg>
-  );
-}
+
 
 /* ——— WhatsApp SVG ——— */
 function WhatsAppIcon({ size = 20 }) {
@@ -45,12 +31,10 @@ function InstagramIcon({ size = 20 }) {
 function Logo({ size = 'md' }) {
   return (
     <div className={`land-logo land-logo-${size}`}>
-      <div className="land-logo-icon">
-        <MotoIcon size={size === 'sm' ? 18 : size === 'lg' ? 28 : 22} color="#0b0b0f" />
-      </div>
-      <div className="land-logo-text">
-        <span className="land-logo-main">SAQUA<span className="land-logo-accent">LOCA</span></span>
-        <span className="land-logo-sub">MOTOS</span>
+      <div className="land-logo-wordmark">
+        <span className="land-logo-brand">SAQUA</span>
+        <div className="land-logo-divider" />
+        <span className="land-logo-tagline">LOCAMOTOS</span>
       </div>
     </div>
   );

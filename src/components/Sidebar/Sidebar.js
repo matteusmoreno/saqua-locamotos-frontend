@@ -3,21 +3,6 @@ import { FiHome, FiUsers, FiTruck, FiFileText, FiLogOut, FiUser, FiDollarSign } 
 import { useAuth } from '../../context/AuthContext';
 import './Sidebar.css';
 
-function MotoIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="10" cy="34" r="7" stroke="#0b0b0f" strokeWidth="3" fill="none"/>
-      <circle cx="38" cy="34" r="7" stroke="#0b0b0f" strokeWidth="3" fill="none"/>
-      <path d="M17 34H31" stroke="#0b0b0f" strokeWidth="2.5" strokeLinecap="round"/>
-      <path d="M28 12H20L14 28H34L28 12Z" stroke="#0b0b0f" strokeWidth="2.5" strokeLinejoin="round" fill="none"/>
-      <path d="M20 24H12L10 34" stroke="#0b0b0f" strokeWidth="2.5" strokeLinecap="round"/>
-      <path d="M28 24H36L38 34" stroke="#0b0b0f" strokeWidth="2.5" strokeLinecap="round"/>
-      <path d="M28 12L32 6H38" stroke="#0b0b0f" strokeWidth="2.5" strokeLinecap="round"/>
-      <circle cx="38" cy="6" r="2" fill="#0b0b0f"/>
-    </svg>
-  );
-}
-
 function Sidebar({ isOpen, onClose }) {
   const { logout, isAdmin } = useAuth();
   const navigate = useNavigate();
@@ -33,14 +18,10 @@ function Sidebar({ isOpen, onClose }) {
       <div className={`sidebar-overlay ${isOpen ? 'active' : ''}`} onClick={onClose} />
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         <div className="sidebar-brand">
-          <div className="sidebar-logo">
-            <div className="sidebar-logo-icon">
-              <MotoIcon />
-            </div>
-            <div className="sidebar-logo-text">
-              <span className="sidebar-logo-main">SAQUA<span className="sidebar-logo-accent">LOCA</span></span>
-              <span className="sidebar-logo-sub">MOTOS</span>
-            </div>
+          <div className="sidebar-logo-wordmark">
+            <span className="sidebar-logo-brand">SAQUA</span>
+            <div className="sidebar-logo-divider" />
+            <span className="sidebar-logo-tagline">LOCAMOTOS</span>
           </div>
           <span className="sidebar-brand-sub">Gestão de Aluguéis</span>
         </div>

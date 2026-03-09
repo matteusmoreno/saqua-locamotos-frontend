@@ -12,64 +12,59 @@
 .land-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
   user-select: none;
 }
 
-.land-logo-icon {
-  position: relative;
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--primary) 0%, #e0a800 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  flex-shrink: 0;
-  box-shadow: 0 2px 12px rgba(255,195,14,0.25);
-}
-.land-logo-icon svg {
-  display: block;
-}
-
-.land-logo-text {
+.land-logo-wordmark {
   display: flex;
   flex-direction: column;
-  line-height: 1;
+  align-items: flex-start;
+  gap: 2px;
 }
 
-.land-logo-main {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: 1.5px;
-}
-
-.land-logo-accent {
+.land-logo-brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  font-size: 1.9rem;
+  line-height: 0.88;
+  letter-spacing: 4px;
   background: linear-gradient(135deg, var(--primary) 0%, #ffe082 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.land-logo-sub {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 0.6rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 3.5px;
+.land-logo-divider {
+  width: 100%;
+  height: 1.5px;
+  background: linear-gradient(90deg, var(--primary) 0%, rgba(255,195,14,0.15) 100%);
+  border-radius: 2px;
+  margin: 1px 0;
 }
 
-.land-logo-sm .land-logo-icon { width: 34px; height: 34px; border-radius: 9px; }
-.land-logo-sm .land-logo-main { font-size: 0.95rem; }
-.land-logo-sm .land-logo-sub { font-size: 0.5rem; }
+.land-logo-tagline {
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
+  font-size: 0.72rem;
+  letter-spacing: 5px;
+  color: rgba(240,240,245,0.55);
+  line-height: 1;
+}
 
-.land-logo-md { justify-content: center; margin-bottom: 20px; }
-.land-logo-md .land-logo-icon { width: 48px; height: 48px; }
-.land-logo-md .land-logo-main { font-size: 1.3rem; }
-.land-logo-md .land-logo-sub { font-size: 0.58rem; }
+/* size variants */
+.land-logo-sm .land-logo-brand   { font-size: 1.55rem; letter-spacing: 3px; }
+.land-logo-sm .land-logo-tagline { font-size: 0.58rem; letter-spacing: 4px; }
+
+.land-logo-md {
+  justify-content: center;
+  margin-bottom: 20px;
+}
+.land-logo-md .land-logo-wordmark  { align-items: center; }
+.land-logo-md .land-logo-brand     { font-size: 2.6rem; letter-spacing: 6px; }
+.land-logo-md .land-logo-tagline   { font-size: 0.9rem;  letter-spacing: 6px; }
+
+.land-logo-lg .land-logo-brand     { font-size: 3.2rem; letter-spacing: 7px; }
+.land-logo-lg .land-logo-tagline   { font-size: 1rem;   letter-spacing: 7px; }
 
 /* ============  NAVBAR  ============ */
 .land-nav {
