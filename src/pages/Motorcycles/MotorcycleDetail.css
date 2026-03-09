@@ -1,118 +1,346 @@
-.moto-detail-header {
+/* ── MotorcycleDetail — md-* namespace ── */
+
+.md-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Hero ── */
+.md-hero {
   background: var(--bg-card);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow);
   border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.md-hero-stripe {
+  height: 4px;
+  width: 100%;
+}
+
+.md-hero-body {
   padding: 20px 24px;
   display: flex;
   align-items: center;
   gap: 20px;
-  position: relative;
-  overflow: hidden;
+  flex-wrap: wrap;
 }
 
-.moto-detail-header::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary), var(--primary-dark, #d4960a));
+.md-hero-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
 }
 
-.moto-detail-icon {
+.md-hero-icon {
   width: 60px;
   height: 60px;
-  border-radius: var(--radius-md);
+  border-radius: 14px;
   background: var(--primary-bg);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.6rem;
-  color: var(--primary-dark);
   flex-shrink: 0;
 }
 
-.moto-detail-info {
-  flex: 1;
+.md-hero-info {
+  min-width: 0;
 }
 
-.moto-detail-info h1 {
-  font-size: 1.3rem;
+.md-hero-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.md-hero-title {
+  font-size: 1.2rem;
   font-weight: 800;
   color: var(--text-primary);
-  letter-spacing: -0.3px;
+  margin: 0;
 }
 
-.moto-detail-info p {
-  font-size: 0.83rem;
+.md-plate {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--primary);
+  background: var(--primary-bg);
+  padding: 3px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.8px;
+  font-family: monospace;
+}
+
+.md-status-chip {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 9999px;
+}
+
+.md-hero-sub {
+  font-size: 0.8rem;
   color: var(--text-muted);
-  margin-top: 4px;
+  margin: 0;
 }
 
-.moto-detail-actions {
+/* ── Actions ── */
+.md-hero-actions {
   display: flex;
+  align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.md-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.md-action-btn:hover {
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+.md-action-btn.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #000;
+}
+
+.md-action-btn.primary:hover {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.md-action-btn.success {
+  background: var(--success-bg);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.md-action-btn.warning {
+  background: var(--warning-bg);
+  border-color: var(--warning);
+  color: var(--warning);
+}
+
+.md-action-btn.danger {
+  background: var(--danger-bg);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+/* ── Cards Grid ── */
+.md-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.md-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.md-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-elevated);
+}
+
+.md-card-header-icon {
+  color: var(--primary);
+  font-size: 1rem;
+}
+
+.md-card-header h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.md-card-body {
+  padding: 0;
+}
+
+/* ── Spec rows ── */
+.md-spec-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border-light);
+  gap: 12px;
+}
+
+.md-spec-row:last-child {
+  border-bottom: none;
+}
+
+.md-spec-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
   flex-shrink: 0;
 }
 
-.btn-success {
-  display: inline-flex;
+.md-spec-value {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.md-spec-plate {
+  font-family: monospace;
+  color: var(--primary);
+  letter-spacing: 0.8px;
+}
+
+.md-spec-empty {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.md-doc-link {
+  color: var(--primary-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.md-doc-link:hover {
+  text-decoration: underline;
+}
+
+.md-bool-chip {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 9999px;
+}
+
+.md-bool-chip[data-bool="true"]  { background: var(--success-bg); color: var(--success); }
+.md-bool-chip[data-bool="false"] { background: var(--danger-bg);  color: var(--danger); }
+
+/* ── Sections ── */
+.md-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.md-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-elevated);
+}
+
+.md-section-icon {
+  color: var(--primary);
+  font-size: 1rem;
+}
+
+.md-section-header h2 {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* ── Contract list ── */
+.md-contract-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.md-contract-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: background 0.15s;
+  gap: 12px;
+}
+
+.md-contract-item:last-child {
+  border-bottom: none;
+}
+
+.md-contract-item:hover {
+  background: var(--bg-elevated);
+}
+
+.md-contract-left {
+  min-width: 0;
+}
+
+.md-contract-user {
+  font-size: 0.87rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 2px;
+}
+
+.md-contract-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.md-contract-right {
+  display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  background: var(--success);
-  color: var(--text-light);
-  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.md-contract-status {
+  font-size: 0.68rem;
   font-weight: 700;
-  border-radius: var(--radius);
-  border: none;
-  transition: var(--transition);
-  cursor: pointer;
+  padding: 3px 9px;
+  border-radius: 9999px;
 }
 
-.btn-success:hover {
-  background: #059669;
+.md-contract-arrow {
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
-.btn-warning {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background: var(--warning);
-  color: var(--text-light);
-  font-size: 0.8rem;
-  font-weight: 700;
-  border-radius: var(--radius);
-  border: none;
-  transition: var(--transition);
-  cursor: pointer;
-}
-
-.btn-warning:hover {
-  background: #D97706;
-}
-
-@media (max-width: 768px) {
-  .moto-detail-header {
-    flex-direction: column;
-    text-align: center;
-    padding: 20px;
-  }
-
-  .moto-detail-actions {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .moto-detail-info h1 {
-    font-size: 1.1rem;
-  }
-}
-
-/* ── Motorcycle Financial Summary ── */
-.moto-fin-summary {
+/* ── Financial Summary ── */
+.md-fin-summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
@@ -120,7 +348,7 @@
   border-bottom: 1px solid var(--border-light);
 }
 
-.moto-fin-card {
+.md-fin-card {
   background: var(--bg-elevated);
   border-radius: var(--radius);
   padding: 14px 16px;
@@ -130,7 +358,7 @@
   border: 1px solid var(--border-light);
 }
 
-.moto-fin-card-icon {
+.md-fin-icon {
   width: 36px;
   height: 36px;
   border-radius: var(--radius);
@@ -141,12 +369,12 @@
   flex-shrink: 0;
 }
 
-.moto-fin-card.positive .moto-fin-card-icon { background: rgba(52,211,153,0.12); color: var(--success); }
-.moto-fin-card.negative .moto-fin-card-icon { background: rgba(248,113,113,0.12); color: var(--danger); }
-.moto-fin-card.earnings .moto-fin-card-icon { background: rgba(52,211,153,0.12); color: var(--success); }
-.moto-fin-card.expenses .moto-fin-card-icon { background: rgba(251,191,36,0.12);  color: var(--warning); }
+.md-fin-card.positive .md-fin-icon { background: var(--success-bg); color: var(--success); }
+.md-fin-card.negative .md-fin-icon { background: var(--danger-bg);  color: var(--danger); }
+.md-fin-card.earnings .md-fin-icon { background: var(--success-bg); color: var(--success); }
+.md-fin-card.expenses .md-fin-icon { background: var(--warning-bg); color: var(--warning); }
 
-.moto-fin-card-label {
+.md-fin-label {
   display: block;
   font-size: 0.71rem;
   font-weight: 500;
@@ -155,7 +383,7 @@
   letter-spacing: 0.3px;
 }
 
-.moto-fin-card-value {
+.md-fin-value {
   display: block;
   font-size: 1rem;
   font-weight: 800;
@@ -163,34 +391,34 @@
   margin-top: 2px;
 }
 
-.moto-fin-card.positive .moto-fin-card-value { color: var(--success); }
-.moto-fin-card.negative .moto-fin-card-value { color: var(--danger); }
+.md-fin-card.positive .md-fin-value { color: var(--success); }
+.md-fin-card.negative .md-fin-value { color: var(--danger); }
 
-/* ── Expense List in Moto Detail ── */
-.moto-expense-list {
+/* ── Expense List ── */
+.md-expense-list {
   display: flex;
   flex-direction: column;
 }
 
-.moto-expense-item {
+.md-expense-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 11px 20px;
+  padding: 12px 20px;
   border-bottom: 1px solid var(--border-light);
   gap: 12px;
   transition: background 0.15s;
 }
 
-.moto-expense-item:last-child {
+.md-expense-item:last-child {
   border-bottom: none;
 }
 
-.moto-expense-item:hover {
-  background: var(--bg-card-hover);
+.md-expense-item:hover {
+  background: var(--bg-elevated);
 }
 
-.moto-expense-left {
+.md-expense-left {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -198,40 +426,59 @@
   flex: 1;
 }
 
-.moto-expense-left h4 {
+.md-expense-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--warning-bg);
+  color: var(--warning);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.md-expense-type {
   font-size: 0.83rem;
   font-weight: 600;
   color: var(--text-primary);
+  margin: 0 0 2px;
 }
 
-.moto-expense-left p {
-  font-size: 0.71rem;
+.md-expense-desc {
+  font-weight: 400;
   color: var(--text-muted);
-  margin-top: 2px;
 }
 
-.moto-expense-right {
+.md-expense-dates {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.md-expense-right {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
 }
 
-.moto-expense-amount {
+.md-expense-amount {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-primary);
   white-space: nowrap;
 }
 
-.moto-expense-status {
+.md-expense-status {
   font-size: 0.68rem;
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 9999px;
 }
 
-.moto-expense-method {
+.md-expense-method {
   font-size: 0.68rem;
   font-weight: 600;
   padding: 2px 8px;
@@ -240,12 +487,49 @@
   color: var(--text-muted);
 }
 
+/* ── Empty state ── */
+.md-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 32px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.md-empty svg {
+  font-size: 1.8rem;
+  opacity: 0.4;
+}
+
+/* ── Responsive ── */
 @media (max-width: 768px) {
-  .moto-fin-summary {
-    grid-template-columns: 1fr;
-    gap: 8px;
+  .md-hero-body {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 16px;
   }
-  .moto-expense-right {
+
+  .md-hero-actions {
+    width: 100%;
+  }
+
+  .md-hero-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+  }
+
+  .md-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .md-fin-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .md-expense-right {
     flex-wrap: wrap;
     justify-content: flex-end;
   }

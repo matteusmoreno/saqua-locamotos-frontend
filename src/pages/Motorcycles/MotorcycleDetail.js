@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   FiArrowLeft, FiEdit2, FiTruck, FiFileText, FiUpload, FiTrash2,
   FiChevronRight, FiCheckCircle, FiXCircle,
-  FiDollarSign, FiTool, FiTrendingUp, FiTrendingDown, FiAlertTriangle, FiInbox,
+  FiDollarSign, FiTool, FiTrendingUp, FiTrendingDown, FiInbox,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import motorcycleService from '../../services/motorcycleService';
@@ -13,7 +13,6 @@ import {
   getStatusColor, getStatusBgColor
 } from '../../utils/formatters';
 import './MotorcycleDetail.css';
-import '../Customers/CustomerDetail.css';
 
 function MotorcycleDetail() {
   const { id } = useParams();
@@ -89,241 +88,241 @@ function MotorcycleDetail() {
 
   if (!moto) return null;
 
-  const getStatusBadge = () => {
-    if (!moto.active) return { bg: 'var(--danger-bg)', color: 'var(--danger)', label: 'Inativa' };
-    if (moto.available) return { bg: 'var(--success-bg)', color: 'var(--success)', label: 'Disponível' };
-    return { bg: 'var(--warning-bg)', color: 'var(--warning)', label: 'Alugada' };
-  };
-
-  const badge = getStatusBadge();
+  const statusMeta = !moto.active
+    ? { label: 'Inativa',    color: 'var(--danger)',  bg: 'var(--danger-bg)',  stripe: '#f87171' }
+    : moto.available
+    ? { label: 'Disponível', color: 'var(--success)', bg: 'var(--success-bg)', stripe: '#34d399' }
+    : { label: 'Alugada',    color: 'var(--warning)', bg: 'var(--warning-bg)', stripe: '#fbbf24' };
 
   return (
-    <div className="detail-page">
+    <div className="md-page">
       <button className="back-link" onClick={() => navigate('/motos')}>
         <FiArrowLeft /> Voltar para motos
       </button>
 
-      {/* Header */}
-      <div className="moto-detail-header">
-        <div className="moto-detail-icon">
-          <FiTruck />
-        </div>
-        <div className="moto-detail-info">
-          <h1>{moto.brand} {moto.model}</h1>
-          <p>
-            {moto.plate?.toUpperCase()} &middot; {moto.year} &middot; {moto.color}
-            <span className="status-badge" style={{ background: badge.bg, color: badge.color, marginLeft: 12 }}>
-              {badge.label}
-            </span>
-          </p>
-        </div>
-        <div className="moto-detail-actions">
-          <button className="btn-icon" title="Upload documento" onClick={() => fileInputRef.current?.click()}>
-            <FiUpload />
-          </button>
-          {moto.documentUrl && (
-            <button className="btn-icon" title="Remover documento" onClick={handleDeleteDocument}>
-              <FiTrash2 />
+      {/* ── Hero ── */}
+      <div className="md-hero">
+        <div className="md-hero-stripe" style={{ background: statusMeta.stripe }} />
+        <div className="md-hero-body">
+          <div className="md-hero-main">
+            <div className="md-hero-icon"><FiTruck /></div>
+            <div className="md-hero-info">
+              <div className="md-hero-title-row">
+                <h1 className="md-hero-title">{moto.brand} {moto.model}</h1>
+                <span className="md-plate">{moto.plate?.toUpperCase()}</span>
+                <span className="md-status-chip" style={{ background: statusMeta.bg, color: statusMeta.color }}>
+                  {statusMeta.label}
+                </span>
+              </div>
+              <p className="md-hero-sub">
+                {moto.year} · {moto.color}
+                {moto.mileage != null && ` · ${moto.mileage.toLocaleString('pt-BR')} km`}
+              </p>
+            </div>
+          </div>
+          <div className="md-hero-actions">
+            <button className="md-action-btn" title="Upload documento" onClick={() => fileInputRef.current?.click()}>
+              <FiUpload /><span>Documento</span>
             </button>
-          )}
-          {moto.active ? (
-            <button className="btn-warning btn-sm" onClick={handleToggleActive}>
-              <FiXCircle /> Desativar
+            {moto.documentUrl && (
+              <button className="md-action-btn danger" onClick={handleDeleteDocument}>
+                <FiTrash2 /><span>Remover doc</span>
+              </button>
+            )}
+            <button
+              className={`md-action-btn ${moto.active ? 'warning' : 'success'}`}
+              onClick={handleToggleActive}
+            >
+              {moto.active ? <FiXCircle /> : <FiCheckCircle />}
+              <span>{moto.active ? 'Desativar' : 'Ativar'}</span>
             </button>
-          ) : (
-            <button className="btn-success btn-sm" onClick={handleToggleActive}>
-              <FiCheckCircle /> Ativar
+            <button className="md-action-btn primary" onClick={() => navigate(`/motos/editar/${id}`)}>
+              <FiEdit2 /><span>Editar</span>
             </button>
-          )}
-          <button className="btn-primary btn-sm" onClick={() => navigate(`/motos/editar/${id}`)}>
-            <FiEdit2 /> Editar
-          </button>
-          <input ref={fileInputRef} type="file" className="upload-input" onChange={handleUploadDocument} />
+            <input ref={fileInputRef} type="file" className="upload-input" onChange={handleUploadDocument} />
+          </div>
         </div>
       </div>
 
-      {/* Info */}
-      <div className="info-grid">
-        <div className="info-card">
-          <div className="info-card-header">
-            <FiTruck />
+      {/* ── Info Cards ── */}
+      <div className="md-cards-grid">
+        <div className="md-card">
+          <div className="md-card-header">
+            <FiTruck className="md-card-header-icon" />
             <h3>Dados da Moto</h3>
           </div>
-          <div className="info-card-body">
-            <div className="info-row">
-              <span className="label">Marca</span>
-              <span className="value">{moto.brand}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Modelo</span>
-              <span className="value">{moto.model}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Placa</span>
-              <span className="value">{moto.plate?.toUpperCase()}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Ano</span>
-              <span className="value">{moto.year}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Cor</span>
-              <span className="value">{moto.color}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">RENAVAM</span>
-              <span className="value">{moto.renavam}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Chassi</span>
-              <span className="value">{moto.chassis}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Quilometragem</span>
-              <span className="value">{moto.mileage != null ? `${moto.mileage.toLocaleString('pt-BR')} km` : '—'}</span>
+          <div className="md-card-body">
+            <div className="md-spec-row"><span className="md-spec-label">Marca</span><span className="md-spec-value">{moto.brand}</span></div>
+            <div className="md-spec-row"><span className="md-spec-label">Modelo</span><span className="md-spec-value">{moto.model}</span></div>
+            <div className="md-spec-row"><span className="md-spec-label">Placa</span><span className="md-spec-value md-spec-plate">{moto.plate?.toUpperCase()}</span></div>
+            <div className="md-spec-row"><span className="md-spec-label">Ano</span><span className="md-spec-value">{moto.year}</span></div>
+            <div className="md-spec-row"><span className="md-spec-label">Cor</span><span className="md-spec-value">{moto.color}</span></div>
+            <div className="md-spec-row"><span className="md-spec-label">RENAVAM</span><span className="md-spec-value">{moto.renavam}</span></div>
+            <div className="md-spec-row"><span className="md-spec-label">Chassi</span><span className="md-spec-value">{moto.chassis}</span></div>
+            <div className="md-spec-row">
+              <span className="md-spec-label">Quilometragem</span>
+              <span className="md-spec-value">{moto.mileage != null ? `${moto.mileage.toLocaleString('pt-BR')} km` : '—'}</span>
             </div>
           </div>
         </div>
 
-        <div className="info-card">
-          <div className="info-card-header">
-            <FiFileText />
-            <h3>Documentação</h3>
+        <div className="md-card">
+          <div className="md-card-header">
+            <FiFileText className="md-card-header-icon" />
+            <h3>Documentação e Status</h3>
           </div>
-          <div className="info-card-body">
-            <div className="info-row">
-              <span className="label">Documento</span>
-              <span className="value">
+          <div className="md-card-body">
+            <div className="md-spec-row">
+              <span className="md-spec-label">Documento</span>
+              <span className="md-spec-value">
                 {moto.documentUrl ? (
-                  <a href={moto.documentUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary-dark)', fontWeight: 600 }}>
+                  <a href={moto.documentUrl} target="_blank" rel="noopener noreferrer" className="md-doc-link">
                     Ver documento
                   </a>
                 ) : (
-                  '—'
+                  <span className="md-spec-empty">Não enviado</span>
                 )}
               </span>
             </div>
-            <div className="info-row">
-              <span className="label">Disponível</span>
-              <span className="value">{moto.available ? 'Sim' : 'Não'}</span>
+            <div className="md-spec-row">
+              <span className="md-spec-label">Disponível</span>
+              <span className="md-spec-value">
+                <span className="md-bool-chip" data-bool={moto.available ? 'true' : 'false'}>
+                  {moto.available ? 'Sim' : 'Não'}
+                </span>
+              </span>
             </div>
-            <div className="info-row">
-              <span className="label">Ativa</span>
-              <span className="value">{moto.active ? 'Sim' : 'Não'}</span>
+            <div className="md-spec-row">
+              <span className="md-spec-label">Ativa</span>
+              <span className="md-spec-value">
+                <span className="md-bool-chip" data-bool={moto.active ? 'true' : 'false'}>
+                  {moto.active ? 'Sim' : 'Não'}
+                </span>
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Contracts */}
-      <div className="contracts-section">
-        <div className="section-header">
-          <h2><FiFileText style={{ marginRight: 8, verticalAlign: 'middle' }} />Contratos</h2>
+      {/* ── Contracts ── */}
+      <div className="md-section">
+        <div className="md-section-header">
+          <FiFileText className="md-section-icon" />
+          <h2>Contratos ({contracts.length})</h2>
         </div>
         {contracts.length === 0 ? (
-          <div className="empty-state">
-            <FiFileText />
+          <div className="md-empty">
+            <FiInbox />
             <p>Nenhum contrato encontrado</p>
           </div>
         ) : (
-          contracts.map((contract) => (
-            <div
-              key={contract.contractId}
-              className="contract-item"
-              onClick={() => navigate(`/contratos/${contract.contractId}`)}
-            >
-              <div className="contract-item-left">
-                <h4>{contract.user?.name}</h4>
-                <p>
-                  {RENTAL_TYPE_LABELS[contract.rentalType]} &middot; {formatDate(contract.startDate)} a {formatDate(contract.endDate)} &middot; {formatCurrency(contract.weeklyAmount)}/semana
-                </p>
+          <div className="md-contract-list">
+            {contracts.map((contract) => (
+              <div
+                key={contract.contractId}
+                className="md-contract-item"
+                onClick={() => navigate(`/contratos/${contract.contractId}`)}
+              >
+                <div className="md-contract-left">
+                  <h4 className="md-contract-user">{contract.user?.name}</h4>
+                  <p className="md-contract-sub">
+                    {RENTAL_TYPE_LABELS[contract.rentalType]}
+                    {' · '}{formatDate(contract.startDate)} – {formatDate(contract.endDate)}
+                    {' · '}{formatCurrency(contract.weeklyAmount)}/sem
+                  </p>
+                </div>
+                <div className="md-contract-right">
+                  <span
+                    className="md-contract-status"
+                    style={{ background: getStatusBgColor(contract.status), color: getStatusColor(contract.status) }}
+                  >
+                    {CONTRACT_STATUS_LABELS[contract.status]}
+                  </span>
+                  <FiChevronRight className="md-contract-arrow" />
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span
-                  className="status-badge"
-                  style={{ background: getStatusBgColor(contract.status), color: getStatusColor(contract.status) }}
-                >
-                  {CONTRACT_STATUS_LABELS[contract.status]}
-                </span>
-                <FiChevronRight style={{ color: 'var(--text-muted)' }} />
-              </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
 
-      {/* Financial Summary */}
+      {/* ── Financial ── */}
       {moto.financial && (
-        <div className="contracts-section">
-          <div className="section-header">
-            <h2><FiDollarSign style={{ marginRight: 8, verticalAlign: 'middle' }} />Financeiro</h2>
+        <div className="md-section">
+          <div className="md-section-header">
+            <FiDollarSign className="md-section-icon" />
+            <h2>Financeiro</h2>
           </div>
 
-          {/* Summary Cards */}
-          <div className="moto-fin-summary">
-            <div className={`moto-fin-card ${(moto.financial.total || 0) >= 0 ? 'positive' : 'negative'}`}>
-              <div className="moto-fin-card-icon">
+          <div className="md-fin-summary">
+            <div className={`md-fin-card ${(moto.financial.total || 0) >= 0 ? 'positive' : 'negative'}`}>
+              <div className="md-fin-icon">
                 {(moto.financial.total || 0) >= 0 ? <FiTrendingUp /> : <FiTrendingDown />}
               </div>
               <div>
-                <span className="moto-fin-card-label">Saldo Líquido</span>
-                <span className="moto-fin-card-value">{formatCurrency(moto.financial.total || 0)}</span>
+                <span className="md-fin-label">Saldo Líquido</span>
+                <span className="md-fin-value">{formatCurrency(moto.financial.total || 0)}</span>
               </div>
             </div>
-            <div className="moto-fin-card earnings">
-              <div className="moto-fin-card-icon"><FiTrendingUp /></div>
+            <div className="md-fin-card earnings">
+              <div className="md-fin-icon"><FiTrendingUp /></div>
               <div>
-                <span className="moto-fin-card-label">Receitas Pagas</span>
-                <span className="moto-fin-card-value">
+                <span className="md-fin-label">Receitas Pagas</span>
+                <span className="md-fin-value">
                   {formatCurrency(
-                    (moto.financial.earnings || []).filter(e => e.status === 'PAID').reduce((s, e) => s + (e.amount || 0), 0)
+                    (moto.financial.earnings || []).filter((e) => e.status === 'PAID').reduce((s, e) => s + (e.amount || 0), 0)
                   )}
                 </span>
               </div>
             </div>
-            <div className="moto-fin-card expenses">
-              <div className="moto-fin-card-icon"><FiTool /></div>
+            <div className="md-fin-card expenses">
+              <div className="md-fin-icon"><FiTool /></div>
               <div>
-                <span className="moto-fin-card-label">Despesas Pagas</span>
-                <span className="moto-fin-card-value">
+                <span className="md-fin-label">Despesas Pagas</span>
+                <span className="md-fin-value">
                   {formatCurrency(
-                    (moto.financial.expenses || []).filter(e => e.status === 'PAID').reduce((s, e) => s + (e.amount || 0), 0)
+                    (moto.financial.expenses || []).filter((e) => e.status === 'PAID').reduce((s, e) => s + (e.amount || 0), 0)
                   )}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* Expenses list */}
           {(moto.financial.expenses || []).length === 0 ? (
-            <div className="empty-state">
+            <div className="md-empty">
               <FiInbox />
-              <p>Nenhuma despesa registrada para esta moto</p>
+              <p>Nenhuma despesa registrada</p>
             </div>
           ) : (
-            <div className="moto-expense-list">
+            <div className="md-expense-list">
               {[...(moto.financial.expenses || [])]
                 .sort((a, b) => new Date(b.createdAt || b.dueDate) - new Date(a.createdAt || a.dueDate))
                 .map((expense, idx) => {
-                  const statusColor = expense.status === 'PAID' ? 'var(--success)' : expense.status === 'OVERDUE' ? 'var(--danger)' : 'var(--warning)';
-                  const statusLabel = expense.status === 'PAID' ? 'Paga' : expense.status === 'PENDING' ? 'Pendente' : 'Vencida';
-                  const typeLabels = { MAINTENANCE: 'Manutenção', UTILITIES: 'Utilidades', TAXES: 'Impostos', INSURANCE: 'Seguro', OTHER: 'Outros' };
+                  const sc = expense.status === 'PAID' ? 'var(--success)' : expense.status === 'OVERDUE' ? 'var(--danger)' : 'var(--warning)';
+                  const sl = expense.status === 'PAID' ? 'Paga' : expense.status === 'PENDING' ? 'Pendente' : 'Vencida';
+                  const tl = { MAINTENANCE: 'Manutenção', UTILITIES: 'Utilidades', TAXES: 'Impostos', INSURANCE: 'Seguro', OTHER: 'Outros' };
                   return (
-                    <div key={idx} className="moto-expense-item">
-                      <div className="moto-expense-left">
-                        <FiTool style={{ color: 'var(--warning)', flexShrink: 0 }} />
+                    <div key={idx} className="md-expense-item">
+                      <div className="md-expense-left">
+                        <div className="md-expense-icon"><FiTool /></div>
                         <div>
-                          <h4>{typeLabels[expense.type] || expense.type}{expense.description && <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}> — {expense.description}</span>}</h4>
-                          <p>Vence: {formatDate(expense.dueDate)}{expense.paidDate && ` · Pago: ${formatDate(expense.paidDate)}`}</p>
+                          <h4 className="md-expense-type">
+                            {tl[expense.type] || expense.type}
+                            {expense.description && <span className="md-expense-desc"> — {expense.description}</span>}
+                          </h4>
+                          <p className="md-expense-dates">
+                            Vence: {formatDate(expense.dueDate)}
+                            {expense.paidDate && ` · Pago: ${formatDate(expense.paidDate)}`}
+                          </p>
                         </div>
                       </div>
-                      <div className="moto-expense-right">
-                        <span className="moto-expense-amount">{formatCurrency(expense.amount)}</span>
-                        <span className="moto-expense-status" style={{ background: statusColor + '22', color: statusColor }}>
-                          {statusLabel}
-                        </span>
+                      <div className="md-expense-right">
+                        <span className="md-expense-amount">{formatCurrency(expense.amount)}</span>
+                        <span className="md-expense-status" style={{ background: sc + '22', color: sc }}>{sl}</span>
                         {expense.method && (
-                          <span className="moto-expense-method">{{ PIX: 'Pix', CASH: 'Dinheiro', CARD: 'Cartão' }[expense.method] || expense.method}</span>
+                          <span className="md-expense-method">
+                            {{ PIX: 'Pix', CASH: 'Dinheiro', CARD: 'Cartão' }[expense.method] || expense.method}
+                          </span>
                         )}
                       </div>
                     </div>

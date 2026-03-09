@@ -1,121 +1,301 @@
-.moto-status-available {
-  color: var(--success);
-}
+/* ── MotorcycleList — ml-* namespace ── */
 
-.moto-status-rented {
-  color: var(--warning);
-}
-
-.moto-status-inactive {
-  color: var(--danger);
-}
-
-/* Motorcycle cards for mobile */
-.moto-cards {
-  display: none;
+.ml-page {
+  display: flex;
   flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Header ── */
+.ml-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
 }
 
-.moto-card {
+.ml-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.ml-subtitle {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+/* ── KPIs ── */
+.ml-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.ml-kpi {
   background: var(--bg-card);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  box-shadow: var(--shadow);
   border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: border-color 0.15s;
+}
+
+.ml-kpi:hover {
+  border-color: var(--border);
+}
+
+.ml-kpi-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.ml-kpi-icon.neutral   { background: var(--bg-elevated); color: var(--text-muted); }
+.ml-kpi-icon.available { background: var(--success-bg);  color: var(--success); }
+.ml-kpi-icon.rented    { background: var(--warning-bg);  color: var(--warning); }
+.ml-kpi-icon.inactive  { background: var(--danger-bg);   color: var(--danger); }
+
+.ml-kpi-value {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.ml-kpi-label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 3px;
+}
+
+/* ── Toolbar ── */
+.ml-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ml-search {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.ml-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  pointer-events: none;
+}
+
+.ml-search-input {
+  width: 100%;
+  padding: 9px 12px 9px 36px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.ml-search-input::placeholder { color: var(--text-muted); }
+
+.ml-search-input:focus {
+  border-color: var(--primary);
+}
+
+.ml-filters {
+  display: flex;
+  gap: 6px;
+}
+
+.ml-filter-btn {
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.ml-filter-btn:hover {
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+
+.ml-filter-btn.active {
+  background: var(--primary-bg);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ── Card Grid ── */
+.ml-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.ml-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   gap: 14px;
-  transition: var(--transition);
+  padding: 0 16px 0 0;
+  overflow: hidden;
   cursor: pointer;
+  transition: border-color 0.15s, transform 0.1s;
 }
 
-.moto-card:active {
-  transform: scale(0.98);
+.ml-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
 }
 
-.moto-card-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius);
+.ml-card-stripe {
+  width: 4px;
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+.ml-card-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
   background: var(--primary-bg);
+  color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.2rem;
-  color: var(--primary-dark);
   flex-shrink: 0;
 }
 
-.moto-card-info {
+.ml-card-body {
   flex: 1;
   min-width: 0;
+  padding: 14px 0;
 }
 
-.moto-card-info h4 {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.moto-card-info p {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.moto-card-right {
+.ml-card-top {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ml-card-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ml-card-status {
+  font-size: 0.67rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
   flex-shrink: 0;
 }
 
-/* Filters */
-.filters-bar {
+.ml-card-plate {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-bg);
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  font-family: monospace;
+  margin-bottom: 4px;
+}
+
+.ml-card-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 4px;
   flex-wrap: wrap;
 }
 
-.filter-chip {
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  font-size: 0.8rem;
-  font-weight: 600;
-  border: 2px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: var(--transition);
-  white-space: nowrap;
+.ml-card-dot {
+  color: var(--border);
 }
 
-.filter-chip:hover {
-  border-color: var(--primary);
+.ml-card-arrow {
+  color: var(--text-muted);
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
-.filter-chip.active {
-  background: var(--primary);
-  color: var(--bg-sidebar);
-  border-color: var(--primary);
+/* ── Empty state ── */
+.ml-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 40px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
 }
 
-@media (max-width: 768px) {
-  .table-container {
+.ml-empty svg {
+  font-size: 2rem;
+  opacity: 0.4;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .ml-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .ml-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ml-filters {
     display: none;
   }
 
-  .moto-cards {
-    display: flex;
-  }
-
-  .filters-bar {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: 4px;
-    -webkit-overflow-scrolling: touch;
+  .ml-kpis {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
