@@ -1,9 +1,18 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FiMail, FiKey, FiLock, FiEye, FiEyeOff, FiCheckCircle, FiArrowLeft } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
+import { FiMail, FiKey, FiLock, FiEye, FiEyeOff, FiCheckCircle, FiArrowLeft, FiShield } from 'react-icons/fi';
 import userService from '../../services/userService';
-import logo from '../../assets/saqua-locamotos-logo.png';
 import './ForgotPassword.css';
+
+function FpLogo() {
+  return (
+    <div className="fp-wordmark">
+      <span className="fp-wordmark-brand">SAQUA</span>
+      <div className="fp-wordmark-divider" />
+      <span className="fp-wordmark-tagline">LOCAMOTOS</span>
+    </div>
+  );
+}
 
 // ---- password strength helper ----
 function getStrength(pwd) {
@@ -23,6 +32,7 @@ function getStrength(pwd) {
 }
 
 function ForgotPassword() {
+  const navigate = useNavigate();
   // steps: 'email' | 'reset' | 'success'
   const [step, setStep] = useState('email');
 
@@ -84,8 +94,7 @@ function ForgotPassword() {
 
         {/* Logo */}
         <div className="fp-logo">
-          <img src={logo} alt="Saqua Locamotos" />
-          <h1>Saqua Locamotos</h1>
+          <FpLogo />
         </div>
 
         {/* ======== STEP 1 – Email ======== */}
@@ -120,9 +129,9 @@ function ForgotPassword() {
               </button>
             </form>
 
-            <Link to="/login" className="fp-back">
-              <FiArrowLeft /> Voltar para o login
-            </Link>
+            <button type="button" className="fp-back" onClick={() => navigate('/')}>
+              <FiArrowLeft /> Voltar ao início
+            </button>
           </>
         )}
 
@@ -239,7 +248,7 @@ function ForgotPassword() {
             </div>
             <h2>Senha redefinida!</h2>
             <p>Sua senha foi atualizada com sucesso. Já pode fazer login com a nova senha.</p>
-            <Link to="/login" className="fp-btn">Ir para o login</Link>
+            <button className="fp-btn" onClick={() => navigate('/')}>Voltar ao início</button>
           </div>
         )}
       </div>

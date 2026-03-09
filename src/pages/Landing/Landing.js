@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import {
   FiCheck, FiCalendar, FiClock, FiShield, FiTool, FiZap,
   FiPhoneCall, FiCheckCircle, FiArrowRight, FiX, FiLogIn,
-  FiMail, FiMapPin,
+  FiMail, FiMapPin, FiEye, FiEyeOff, FiAlertCircle,
 } from 'react-icons/fi';
 import './Landing.css';
 
@@ -50,8 +50,40 @@ function Landing() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' });
+  const [touched, setTouched] = useState({ email: false, password: false });
+
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  const validateEmail = (v) => {
+    if (!v) return 'E-mail obrigatório';
+    if (!EMAIL_RE.test(v)) return 'Digite um e-mail válido';
+    return '';
+  };
+  const validatePassword = (v) => {
+    if (!v) return 'Senha obrigatória';
+    if (v.length < 6) return 'Mínimo 6 caracteres';
+    return '';
+  };
+
+  const handleEmailChange = (v) => {
+    setEmail(v);
+    if (touched.email) setFieldErrors((p) => ({ ...p, email: validateEmail(v) }));
+  };
+  const handlePasswordChange = (v) => {
+    setPassword(v);
+    if (touched.password) setFieldErrors((p) => ({ ...p, password: validatePassword(v) }));
+  };
+  const handleBlur = (field) => {
+    setTouched((p) => ({ ...p, [field]: true }));
+    if (field === 'email') setFieldErrors((p) => ({ ...p, email: validateEmail(email) }));
+    if (field === 'password') setFieldErrors((p) => ({ ...p, password: validatePassword(password) }));
+  };
+
+  const isFormValid = !validateEmail(email) && !validatePassword(password);
 
   const plansRef = useRef(null);
   const howRef = useRef(null);
@@ -87,6 +119,11 @@ function Landing() {
     setMobileMenu(false);
     setShowLogin(true);
     setLoginError('');
+    setFieldErrors({ email: '', password: '' });
+    setTouched({ email: false, password: false });
+    setShowPassword(false);
+    setEmail('');
+    setPassword('');
   };
 
   const openWhatsApp = () => {
@@ -567,35 +604,124 @@ function Landing() {
       {showLogin && (
         <div className="land-modal-overlay" onClick={(e) => e.target === e.currentTarget && setShowLogin(false)}>
           <div className="land-modal">
-            <button className="land-modal-close" onClick={() => setShowLogin(false)}>
-              <FiX />
-            </button>
-            <div className="land-modal-header">
-              <Logo size="md" />
-              <h2>Entrar</h2>
-              <p>Acesse sua conta para continuar</p>
+
+            {/* ── Left panel (decorative) ── */}
+            <div className="land-modal-left">
+              <div className="land-modal-left-glow" />
+              <div className="land-modal-left-content">
+                <Logo size="md" />
+                <p className="land-modal-left-sub">
+                  Plataforma de gestão de aluguéis de motos em Saquarema, RJ.
+                </p>
+                <div className="land-modal-trust">
+                  <div className="land-modal-trust-item">
+                    <FiShield className="land-modal-trust-icon" />
+                    <span>Seguro incluso em todas as motos</span>
+                  </div>
+                  <div className="land-modal-trust-item">
+                    <FiCheckCircle className="land-modal-trust-icon" />
+                    <span>Contratos transparentes</span>
+                  </div>
+                  <div className="land-modal-trust-item">
+                    <FiZap className="land-modal-trust-icon" />
+                    <span>Processo rápido e sem burocracia</span>
+                  </div>
+                </div>
+              </div>
+              <div className="land-modal-left-footer">
+                Saqua Locamotos © {new Date().getFullYear()}
+              </div>
             </div>
-            <form className="land-modal-form" onSubmit={handleLogin}>
-              {loginError && <div className="land-modal-error">{loginError}</div>}
-              <div className="land-modal-field">
-                <label>E-mail</label>
-                <input type="email" placeholder="seu@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" autoFocus />
-              </div>
-              <div className="land-modal-field">
-                <label>Senha</label>
-                <input type="password" placeholder="Digite sua senha" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
-              </div>
-              <button type="submit" className="land-modal-submit" disabled={loginLoading}>
-                {loginLoading ? 'Entrando...' : 'Entrar'}
+
+            {/* ── Right panel (form) ── */}
+            <div className="land-modal-right">
+              <button className="land-modal-close" onClick={() => setShowLogin(false)}>
+                <FiX />
               </button>
-              <button
-                type="button"
-                className="land-modal-forgot"
-                onClick={() => { setShowLogin(false); navigate('/esqueci-senha'); }}
-              >
-                Esqueci minha senha
-              </button>
-            </form>
+
+              <div className="land-modal-form-header">
+                <div className="land-modal-form-icon">
+                  <FiLogIn />
+                </div>
+                <h2>Bem-vindo de volta</h2>
+                <p>Entre com suas credenciais para acessar o painel</p>
+              </div>
+
+              <form className="land-modal-form" onSubmit={handleLogin}>
+                {loginError && (
+                  <div className="land-modal-error">
+                    <FiAlertCircle style={{ flexShrink: 0 }} /> {loginError}
+                  </div>
+                )}
+
+                <div className="land-modal-field">
+                  <label htmlFor="lm-email">E-mail</label>
+                  <div className={`land-modal-input-wrap ${touched.email ? (fieldErrors.email ? 'field-error' : 'field-ok') : ''}`}>
+                    <FiMail className="land-modal-input-icon" />
+                    <input
+                      id="lm-email"
+                      type="email"
+                      placeholder="seu@email.com"
+                      value={email}
+                      onChange={(e) => handleEmailChange(e.target.value)}
+                      onBlur={() => handleBlur('email')}
+                      required
+                      autoComplete="email"
+                      autoFocus
+                    />
+                  </div>
+                  {touched.email && fieldErrors.email && (
+                    <span className="land-modal-field-hint error"><FiAlertCircle /> {fieldErrors.email}</span>
+                  )}
+                </div>
+
+                <div className="land-modal-field">
+                  <div className="land-modal-label-row">
+                    <label htmlFor="lm-pass">Senha</label>
+                    <button
+                      type="button"
+                      className="land-modal-forgot"
+                      onClick={() => { setShowLogin(false); navigate('/esqueci-senha'); }}
+                    >
+                      Esqueci minha senha
+                    </button>
+                  </div>
+                  <div className={`land-modal-input-wrap ${touched.password ? (fieldErrors.password ? 'field-error' : 'field-ok') : ''}`}>
+                    <FiShield className="land-modal-input-icon" />
+                    <input
+                      id="lm-pass"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => handlePasswordChange(e.target.value)}
+                      onBlur={() => handleBlur('password')}
+                      required
+                      autoComplete="current-password"
+                    />
+                    <button
+                      type="button"
+                      className="land-modal-eye"
+                      onClick={() => setShowPassword((v) => !v)}
+                      tabIndex={-1}
+                    >
+                      {showPassword ? <FiEyeOff /> : <FiEye />}
+                    </button>
+                  </div>
+                  {touched.password && fieldErrors.password && (
+                    <span className="land-modal-field-hint error"><FiAlertCircle /> {fieldErrors.password}</span>
+                  )}
+                </div>
+
+                <button type="submit" className="land-modal-submit" disabled={loginLoading || !isFormValid}>
+                  {loginLoading ? (
+                    <><span className="land-modal-spinner" /> Entrando...</>
+                  ) : (
+                    <>Entrar <FiArrowRight /></>
+                  )}
+                </button>
+              </form>
+            </div>
+
           </div>
         </div>
       )}
