@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  FiPlus, FiSearch, FiFileText, FiInbox,
-  FiTruck, FiCalendar, FiDollarSign, FiAlertTriangle, FiCheckCircle,
+  FiPlus, FiSearch, FiFileText, FiTruck, FiCalendar,
+  FiDollarSign, FiAlertTriangle, FiCheckCircle, FiX,
+  FiChevronRight, FiClock, FiXCircle, FiInbox,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import contractService from '../../services/contractService';
@@ -11,8 +12,52 @@ import {
   CONTRACT_STATUS_LABELS, RENTAL_TYPE_LABELS,
   getStatusColor, getStatusBgColor,
 } from '../../utils/formatters';
-import '../Customers/CustomerList.css';
 import './ContractList.css';
+
+/* ── Avatar palette (dark-mode) ── */
+const AVATAR_COLORS = [
+  ['#C4B5FD', '#3D2A7A'], ['#7DD3FC', '#1E3A5F'], ['#6EE7B7', '#1B4332'],
+  ['#FDE68A', '#5F3613'], ['#FCA5A5', '#5F1F1F'], ['#F9A8D4', '#5F1440'],
+  ['#A5B4FC', '#2D3069'], ['#5EEAD4', '#1A3D38'],
+];
+const getAvatarColor = (name = '') =>
+  AVATAR_COLORS[(name.charCodeAt(0) || 0) % AVATAR_COLORS.length];
+
+const STATUS_STRIPE = {
+  ACTIVE:    '#10B981',
+  OVERDUE:   '#F59E0B',
+  FINISHED:  '#0EA5E9',
+  CANCELLED: '#EF4444',
+};
+
+const STATUS_FILTERS = [
+  { key: 'ALL',       label: 'Todos',      icon: <FiFileText /> },
+  { key: 'ACTIVE',    label: 'Ativos',     icon: <FiCheckCircle /> },
+  { key: 'OVERDUE',   label: 'Em Atraso',  icon: <FiAlertTriangle /> },
+  { key: 'FINISHED',  label: 'Finalizados',icon: <FiClock /> },
+  { key: 'CANCELLED', label: 'Cancelados', icon: <FiXCircle /> },
+];
+
+function ContractAvatar({ name, pictureUrl }) {
+  const [imgError, setImgError] = useState(false);
+  const [color, bg] = getAvatarColor(name);
+  const initial = name?.charAt(0).toUpperCase() || '?';
+  if (pictureUrl && !imgError) {
+    return (
+      <img
+        src={pictureUrl}
+        alt={name}
+        className="clist-avatar clist-avatar-photo"
+        onError={() => setImgError(true)}
+      />
+    );
+  }
+  return (
+    <div className="clist-avatar clist-avatar-initial" style={{ background: bg, color }}>
+      {initial}
+    </div>
+  );
+}
 
 function ContractList() {
   const [contracts, setContracts] = useState([]);
@@ -21,215 +66,220 @@ function ContractList() {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    loadContracts();
-  }, []);
+  useEffect(() => { loadContracts(); }, []);
 
   const loadContracts = async () => {
     try {
       const data = await contractService.findAll();
       setContracts(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error('Erro ao carregar contratos:', error);
+    } catch {
       toast.error('Erro ao carregar contratos');
     } finally {
       setLoading(false);
     }
   };
 
-  const filtered = contracts.filter((c) => {
-    const matchesSearch =
-      !search ||
-      c.user?.name?.toLowerCase().includes(search.toLowerCase()) ||
-      c.motorcycle?.plate?.toLowerCase().includes(search.toLowerCase()) ||
-      c.motorcycle?.model?.toLowerCase().includes(search.toLowerCase()) ||
-      c.motorcycle?.brand?.toLowerCase().includes(search.toLowerCase());
-    const matchesStatus = statusFilter === 'ALL' || c.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filtered = useMemo(() => {
+    const term = search.toLowerCase().trim();
+    return contracts.filter((c) => {
+      const matchSearch = !term
+        || c.user?.name?.toLowerCase().includes(term)
+        || c.motorcycle?.plate?.toLowerCase().includes(term)
+        || c.motorcycle?.model?.toLowerCase().includes(term)
+        || c.motorcycle?.brand?.toLowerCase().includes(term);
+      const matchStatus = statusFilter === 'ALL' || c.status === statusFilter;
+      return matchSearch && matchStatus;
+    });
+  }, [contracts, search, statusFilter]);
 
-  const statusCounts = {
-    ALL: contracts.length,
-    ACTIVE: contracts.filter((c) => c.status === 'ACTIVE').length,
-    OVERDUE: contracts.filter((c) => c.status === 'OVERDUE').length,
-    FINISHED: contracts.filter((c) => c.status === 'FINISHED').length,
+  const counts = {
+    ALL:       contracts.length,
+    ACTIVE:    contracts.filter((c) => c.status === 'ACTIVE').length,
+    OVERDUE:   contracts.filter((c) => c.status === 'OVERDUE').length,
+    FINISHED:  contracts.filter((c) => c.status === 'FINISHED').length,
     CANCELLED: contracts.filter((c) => c.status === 'CANCELLED').length,
   };
 
-  if (loading) {
-    return <div className="loading-container"><div className="spinner" /></div>;
-  }
+  if (loading) return <div className="loading-container"><div className="spinner" /></div>;
 
   return (
-    <div className="contract-list-page">
-      <div className="page-header">
-        <div>
-          <h1>Contratos</h1>
-          <span className="page-header-sub">{contracts.length} cadastrados</span>
+    <div className="clist-page">
+
+      {/* ── Header ── */}
+      <div className="clist-header">
+        <div className="clist-header-left">
+          <h1 className="clist-title">Contratos</h1>
+          <span className="clist-subtitle">{contracts.length} cadastrado{contracts.length !== 1 ? 's' : ''}</span>
         </div>
-        <button className="btn-primary" onClick={() => navigate('/contratos/novo')}>
+        <button className="clist-btn-new" onClick={() => navigate('/contratos/novo')}>
           <FiPlus /> Novo Contrato
         </button>
       </div>
 
-      <div className="mini-kpi-row">
-        <div className="mini-kpi">
-          <div className="mini-kpi-icon"><FiFileText /></div>
-          <div className="mini-kpi-info">
-            <span className="mini-kpi-value">{statusCounts.ALL}</span>
-            <span className="mini-kpi-label">Total</span>
+      {/* ── KPI row ── */}
+      <div className="clist-kpis">
+        <div className="clist-kpi">
+          <div className="clist-kpi-icon neutral"><FiFileText /></div>
+          <div className="clist-kpi-body">
+            <span className="clist-kpi-value">{counts.ALL}</span>
+            <span className="clist-kpi-label">Total</span>
           </div>
         </div>
-        <div className="mini-kpi success">
-          <div className="mini-kpi-icon"><FiCheckCircle /></div>
-          <div className="mini-kpi-info">
-            <span className="mini-kpi-value">{statusCounts.ACTIVE}</span>
-            <span className="mini-kpi-label">Ativos</span>
+        <div className="clist-kpi">
+          <div className="clist-kpi-icon success"><FiCheckCircle /></div>
+          <div className="clist-kpi-body">
+            <span className="clist-kpi-value">{counts.ACTIVE}</span>
+            <span className="clist-kpi-label">Ativos</span>
           </div>
         </div>
-        <div className="mini-kpi warning">
-          <div className="mini-kpi-icon"><FiAlertTriangle /></div>
-          <div className="mini-kpi-info">
-            <span className="mini-kpi-value">{statusCounts.OVERDUE}</span>
-            <span className="mini-kpi-label">Em Atraso</span>
+        <div className="clist-kpi">
+          <div className="clist-kpi-icon warning"><FiAlertTriangle /></div>
+          <div className="clist-kpi-body">
+            <span className="clist-kpi-value">{counts.OVERDUE}</span>
+            <span className="clist-kpi-label">Em Atraso</span>
           </div>
         </div>
-        <div className="mini-kpi info">
-          <div className="mini-kpi-icon"><FiCalendar /></div>
-          <div className="mini-kpi-info">
-            <span className="mini-kpi-value">{statusCounts.FINISHED}</span>
-            <span className="mini-kpi-label">Finalizados</span>
+        <div className="clist-kpi">
+          <div className="clist-kpi-icon info"><FiClock /></div>
+          <div className="clist-kpi-body">
+            <span className="clist-kpi-value">{counts.FINISHED}</span>
+            <span className="clist-kpi-label">Finalizados</span>
           </div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="contracts-filters">
-        <div className="search-bar">
-          <FiSearch />
+      {/* ── Toolbar ── */}
+      <div className="clist-toolbar">
+        <div className="clist-search">
+          <FiSearch className="clist-search-icon" />
           <input
             type="text"
-            placeholder="Buscar por locador, moto ou placa..."
+            placeholder="Buscar por locador, moto ou placa…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          {search && (
+            <button className="clist-search-clear" onClick={() => setSearch('')}>
+              <FiX />
+            </button>
+          )}
         </div>
-        <div className="status-chips">
-          {Object.entries(statusCounts).map(([status, count]) => (
+
+        <div className="clist-filters">
+          {STATUS_FILTERS.map(({ key, label, icon }) => (
             <button
-              key={status}
-              className={`status-chip ${statusFilter === status ? 'active' : ''} ${status.toLowerCase()}`}
-              onClick={() => setStatusFilter(status)}
+              key={key}
+              className={`clist-filter-chip ${statusFilter === key ? 'active' : ''} clist-chip-${key.toLowerCase()}`}
+              onClick={() => setStatusFilter(key)}
             >
-              {status === 'ALL' ? 'Todos' : CONTRACT_STATUS_LABELS[status]} ({count})
+              {icon} {label}
+              {counts[key] > 0 && (
+                <span className="clist-chip-count">{counts[key]}</span>
+              )}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Contracts */}
+      {/* ── Results ── */}
       {filtered.length === 0 ? (
-        <div className="empty-state-card">
-          <FiInbox />
-          <p>Nenhum contrato encontrado</p>
+        <div className="clist-empty">
+          <FiInbox className="clist-empty-icon" />
+          <h3>Nenhum contrato encontrado</h3>
+          <p>{search || statusFilter !== 'ALL' ? 'Tente ajustar os filtros de busca.' : 'Crie o primeiro contrato para começar.'}</p>
+          {!search && statusFilter === 'ALL' && (
+            <button className="clist-btn-new" onClick={() => navigate('/contratos/novo')}>
+              <FiPlus /> Novo Contrato
+            </button>
+          )}
         </div>
       ) : (
         <>
-          {/* Desktop table */}
-          <div className="table-container contracts-table-desktop">
-            <div className="table-wrapper">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Locador</th>
-                    <th>Moto</th>
-                    <th>Tipo</th>
-                    <th>Período</th>
-                    <th>Semanal</th>
-                    <th>Total</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filtered.map((contract) => (
-                    <tr key={contract.contractId} onClick={() => navigate(`/contratos/${contract.contractId}`)}>
-                      <td>
-                        <div className="contract-cell-user">
-                          <div className="contract-cell-avatar">
-                            {contract.user?.name?.charAt(0)?.toUpperCase() || '?'}
-                          </div>
-                          <span>{contract.user?.name || '—'}</span>
-                        </div>
-                      </td>
-                      <td>{contract.motorcycle?.brand} {contract.motorcycle?.model}</td>
-                      <td>{RENTAL_TYPE_LABELS[contract.rentalType] || contract.rentalType}</td>
-                      <td>{formatDate(contract.startDate)} — {formatDate(contract.endDate)}</td>
-                      <td>{formatCurrency(contract.weeklyAmount)}</td>
-                      <td>{formatCurrency(contract.totalAmount)}</td>
-                      <td>
-                        <span
-                          className="status-badge"
-                          style={{
-                            background: getStatusBgColor(contract.status),
-                            color: getStatusColor(contract.status),
-                          }}
-                        >
-                          {CONTRACT_STATUS_LABELS[contract.status]}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <p className="clist-results-count">
+            {filtered.length} contrato{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
+          </p>
+          <div className="clist-grid">
+            {filtered.map((contract) => {
+              const stripe = STATUS_STRIPE[contract.status] || '#64748B';
+              return (
+                <div
+                  key={contract.contractId}
+                  className="clist-card"
+                  onClick={() => navigate(`/contratos/${contract.contractId}`)}
+                  style={{ '--stripe': stripe }}
+                >
+                  {/* Status stripe */}
+                  <div className="clist-card-stripe" />
 
-          {/* Mobile cards */}
-          <div className="contracts-cards-mobile">
-            {filtered.map((contract) => (
-              <div
-                key={contract.contractId}
-                className="contract-card"
-                onClick={() => navigate(`/contratos/${contract.contractId}`)}
-              >
-                <div className="contract-card-top">
-                  <div className="contract-card-user">
-                    <div className="contract-cell-avatar">
-                      {contract.user?.name?.charAt(0)?.toUpperCase() || '?'}
+                  {/* Top row */}
+                  <div className="clist-card-top">
+                    <div className="clist-card-user">
+                      <ContractAvatar
+                        name={contract.user?.name}
+                        pictureUrl={contract.user?.pictureUrl}
+                      />
+                      <div className="clist-card-user-info">
+                        <span className="clist-card-name">{contract.user?.name || '—'}</span>
+                        <span className="clist-card-rental-type">
+                          {RENTAL_TYPE_LABELS[contract.rentalType] || contract.rentalType}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <h4>{contract.user?.name || '—'}</h4>
-                      <p className="contract-card-moto">
-                        <FiTruck /> {contract.motorcycle?.brand} {contract.motorcycle?.model} — {contract.motorcycle?.plate?.toUpperCase()}
-                      </p>
+                    <div className="clist-card-top-right">
+                      <span
+                        className="clist-status-badge"
+                        style={{
+                          background: getStatusBgColor(contract.status),
+                          color: getStatusColor(contract.status),
+                        }}
+                      >
+                        {CONTRACT_STATUS_LABELS[contract.status]}
+                      </span>
+                      <span className="clist-card-id">#{contract.contractId?.toString().slice(-4) || '—'}</span>
                     </div>
                   </div>
-                  <span
-                    className="status-badge"
-                    style={{
-                      background: getStatusBgColor(contract.status),
-                      color: getStatusColor(contract.status),
-                    }}
-                  >
-                    {CONTRACT_STATUS_LABELS[contract.status]}
-                  </span>
+
+                  {/* Moto row */}
+                  <div className="clist-card-moto">
+                    <div className="clist-card-moto-icon"><FiTruck /></div>
+                    <div className="clist-card-moto-info">
+                      <span className="clist-card-moto-name">
+                        {contract.motorcycle?.brand} {contract.motorcycle?.model}
+                      </span>
+                      <span className="clist-card-moto-plate">
+                        {contract.motorcycle?.plate?.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="clist-card-divider" />
+
+                  {/* Details row */}
+                  <div className="clist-card-details">
+                    <div className="clist-card-detail">
+                      <FiCalendar className="clist-detail-icon" />
+                      <span>{formatDate(contract.startDate)} → {formatDate(contract.endDate)}</span>
+                    </div>
+                    <div className="clist-card-detail">
+                      <FiDollarSign className="clist-detail-icon" />
+                      <span>{formatCurrency(contract.weeklyAmount)}<span className="clist-per">/sem</span></span>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="clist-card-footer">
+                    <div className="clist-card-total">
+                      <span className="clist-total-label">Total do contrato</span>
+                      <span className="clist-total-value">{formatCurrency(contract.totalAmount)}</span>
+                    </div>
+                    <div className="clist-card-arrow">
+                      <FiChevronRight />
+                    </div>
+                  </div>
                 </div>
-                <div className="contract-card-details">
-                  <div className="contract-card-detail">
-                    <FiCalendar />
-                    <span>{formatDate(contract.startDate)} — {formatDate(contract.endDate)}</span>
-                  </div>
-                  <div className="contract-card-detail">
-                    <FiFileText />
-                    <span>{RENTAL_TYPE_LABELS[contract.rentalType]}</span>
-                  </div>
-                  <div className="contract-card-detail">
-                    <FiDollarSign />
-                    <span>{formatCurrency(contract.weeklyAmount)}/sem · Total {formatCurrency(contract.totalAmount)}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </>
       )}

@@ -1,203 +1,525 @@
-/* ======== CONTRACT LIST PAGE ======== */
-.contract-list-page {
+/* ======== CONTRACT LIST — clist-* namespace ======== */
+
+/* ── Page layout ── */
+.clist-page {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
+  padding-bottom: 40px;
 }
 
-/* Filters */
-.contracts-filters {
+/* ── Header ── */
+.clist-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.clist-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.clist-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+.clist-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.clist-btn-new {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  background: var(--primary);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.clist-btn-new:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+/* ── KPI row ── */
+.clist-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.clist-kpi {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: var(--shadow);
+}
+.clist-kpi-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.clist-kpi-icon.neutral  { background: var(--bg-elevated); color: var(--text-muted); }
+.clist-kpi-icon.success  { background: var(--success-bg, #D1FAE5); color: var(--success, #10B981); }
+.clist-kpi-icon.warning  { background: var(--warning-bg, #FEF3C7); color: var(--warning, #F59E0B); }
+.clist-kpi-icon.info     { background: var(--info-bg, #E0F2FE); color: var(--info, #0EA5E9); }
+.clist-kpi-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.clist-kpi-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+.clist-kpi-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+/* ── Toolbar ── */
+.clist-toolbar {
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
+.clist-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.clist-search-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-muted);
+  font-size: 1rem;
+  pointer-events: none;
+}
+.clist-search input {
+  width: 100%;
+  padding: 11px 40px 11px 42px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+.clist-search input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(255, 195, 14, 0.15);
+}
+.clist-search input::placeholder { color: var(--text-muted); }
+.clist-search-clear {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+.clist-search-clear:hover {
+  color: var(--danger, #EF4444);
+  background: var(--danger-bg, #FEE2E2);
+}
 
-.status-chips {
+/* ── Filter chips ── */
+.clist-filters {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
 }
-
-.status-chip {
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  font-size: 0.78rem;
+.clist-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
   font-weight: 600;
   background: var(--bg-card);
   color: var(--text-secondary);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-light);
   cursor: pointer;
   transition: var(--transition);
+  white-space: nowrap;
 }
-
-.status-chip:hover {
+.clist-filter-chip:hover {
   border-color: var(--text-muted);
   color: var(--text-primary);
 }
-
-.status-chip.active {
-  border-color: var(--primary);
-  background: var(--primary-bg);
-  color: var(--primary);
-}
-
-.status-chip.active.overdue {
-  border-color: var(--warning);
-  background: var(--warning-bg);
-  color: var(--warning);
-}
-
-.status-chip.active.finished {
-  border-color: var(--info);
-  background: var(--info-bg);
-  color: var(--info);
-}
-
-.status-chip.active.cancelled {
-  border-color: var(--danger);
-  background: var(--danger-bg);
-  color: var(--danger);
-}
-
-/* Table user cell */
-.contract-cell-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.contract-cell-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--primary-bg);
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.78rem;
-  flex-shrink: 0;
-}
-
-/* Empty state card */
-.empty-state-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
+.clist-chip-count {
+  background: var(--border-light);
   color: var(--text-muted);
-}
-
-.empty-state-card svg {
-  font-size: 2.5rem;
-  margin-bottom: 12px;
-  opacity: 0.5;
-}
-
-.empty-state-card p {
-  font-size: 0.85rem;
-}
-
-/* Desktop table */
-.contracts-table-desktop {
-  display: block;
-}
-
-/* Mobile cards */
-.contracts-cards-mobile {
-  display: none;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.contract-card {
-  background: var(--bg-card);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-light);
-  padding: 16px;
-  cursor: pointer;
+  border-radius: 999px;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
   transition: var(--transition);
 }
-
-.contract-card:hover {
-  border-color: var(--border);
-  box-shadow: var(--shadow-md);
+.clist-filter-chip.active.clist-chip-all {
+  border-color: var(--primary);
+  background: var(--primary-bg, #FFF9E0);
+  color: var(--primary-dark, #B8860B);
+}
+.clist-filter-chip.active.clist-chip-all .clist-chip-count {
+  background: var(--primary);
+  color: #000;
+}
+.clist-filter-chip.active.clist-chip-active {
+  border-color: var(--success, #10B981);
+  background: var(--success-bg, #D1FAE5);
+  color: var(--success, #10B981);
+}
+.clist-filter-chip.active.clist-chip-active .clist-chip-count {
+  background: var(--success, #10B981);
+  color: #fff;
+}
+.clist-filter-chip.active.clist-chip-overdue {
+  border-color: var(--warning, #F59E0B);
+  background: var(--warning-bg, #FEF3C7);
+  color: var(--warning, #F59E0B);
+}
+.clist-filter-chip.active.clist-chip-overdue .clist-chip-count {
+  background: var(--warning, #F59E0B);
+  color: #000;
+}
+.clist-filter-chip.active.clist-chip-finished {
+  border-color: var(--info, #0EA5E9);
+  background: var(--info-bg, #E0F2FE);
+  color: var(--info, #0EA5E9);
+}
+.clist-filter-chip.active.clist-chip-finished .clist-chip-count {
+  background: var(--info, #0EA5E9);
+  color: #fff;
+}
+.clist-filter-chip.active.clist-chip-cancelled {
+  border-color: var(--danger, #EF4444);
+  background: var(--danger-bg, #FEE2E2);
+  color: var(--danger, #EF4444);
+}
+.clist-filter-chip.active.clist-chip-cancelled .clist-chip-count {
+  background: var(--danger, #EF4444);
+  color: #fff;
 }
 
-.contract-card-top {
+/* ── Results count ── */
+.clist-results-count {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── Cards grid ── */
+.clist-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* ── Contract card ── */
+.clist-card {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  cursor: pointer;
+  padding: 18px 18px 14px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.clist-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.13);
+  border-color: var(--primary);
+}
+
+/* Status stripe */
+.clist-card-stripe {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--stripe, #64748B);
+  border-radius: 4px 0 0 4px;
+}
+
+/* ── Card top: avatar + name + status ── */
+.clist-card-top {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
+  gap: 10px;
+}
+.clist-card-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.clist-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.clist-avatar-initial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.clist-avatar-photo {
+  border: 2px solid var(--border, #2a2a34);
+  box-shadow: 0 0 0 1px var(--bg-card, #18181c);
+}
+.clist-card-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.clist-card-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.clist-card-rental-type {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.clist-status-badge {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.clist-card-top-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.clist-card-id {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
-.contract-card-user {
+/* ── Moto row ── */
+.clist-card-moto {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
-.contract-card-user h4 {
-  font-size: 0.88rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.contract-card-moto {
+.clist-card-moto-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--bg-elevated, #222228);
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.75rem;
+  justify-content: center;
   color: var(--text-muted);
-  margin-top: 2px;
+  font-size: 0.95rem;
+  flex-shrink: 0;
 }
-
-.contract-card-details {
+.clist-card-moto-info {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-light);
+  gap: 1px;
+  min-width: 0;
+}
+.clist-card-moto-name {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.clist-card-moto-plate {
+  display: inline-block;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-secondary);
+  background: var(--bg-input, #1a1a20);
+  border: 1px solid var(--border, #2a2a34);
+  border-radius: 4px;
+  padding: 2px 8px;
+  letter-spacing: 0.12em;
+  width: fit-content;
 }
 
-.contract-card-detail {
+/* ── Divider ── */
+.clist-card-divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 0 -4px;
+}
+
+/* ── Details ── */
+.clist-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.clist-card-detail {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--text-secondary);
 }
-
-.contract-card-detail svg {
+.clist-detail-icon {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   flex-shrink: 0;
+}
+.clist-per {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-left: 1px;
+}
+
+/* ── Card footer ── */
+.clist-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 4px;
+  border-top: 1px solid var(--border-light);
+  margin-top: auto;
+}
+.clist-card-total {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.clist-total-label {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+.clist-total-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.clist-card-arrow {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--bg-elevated, #222228);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+.clist-card:hover .clist-card-arrow {
+  background: var(--primary);
+  color: #000;
+  transform: translateX(2px);
+}
+
+/* ── Empty state ── */
+.clist-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 64px 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+.clist-empty-icon {
+  font-size: 3rem;
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+.clist-empty h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+.clist-empty p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin: 0;
+  max-width: 340px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .clist-kpis { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 768px) {
-  .contracts-table-desktop {
-    display: none;
-  }
-
-  .contracts-cards-mobile {
-    display: flex;
-  }
-
-  .status-chips {
+  .clist-grid { grid-template-columns: 1fr; }
+  .clist-title { font-size: 1.35rem; }
+  .clist-filters {
     overflow-x: auto;
     flex-wrap: nowrap;
     padding-bottom: 4px;
     -webkit-overflow-scrolling: touch;
   }
+  .clist-filter-chip { flex-shrink: 0; }
+}
 
-  .status-chip {
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
+@media (max-width: 480px) {
+  .clist-kpis { grid-template-columns: 1fr 1fr; }
 }

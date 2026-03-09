@@ -154,6 +154,27 @@ img {
   min-height: 300px;
 }
 
+/* ── Back link button (shared) ── */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px 6px 6px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+  width: fit-content;
+}
+.back-link:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
 /* Status badges (shared) */
 .status-badge {
   display: inline-flex;
