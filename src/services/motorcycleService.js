@@ -41,6 +41,20 @@ const motorcycleService = {
     return response.data;
   },
 
+  uploadPicture: async (motorcycleId, file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post(`/motorcycles/${motorcycleId}/upload-picture`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  deletePicture: async (motorcycleId) => {
+    const response = await api.delete(`/motorcycles/${motorcycleId}/delete-picture`);
+    return response.data;
+  },
+
   uploadDocument: async (motorcycleId, file) => {
     const formData = new FormData();
     formData.append('file', file);

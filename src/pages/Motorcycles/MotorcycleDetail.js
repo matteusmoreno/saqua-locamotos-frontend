@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   FiArrowLeft, FiEdit2, FiTruck, FiFileText, FiUpload, FiTrash2,
   FiChevronRight, FiCheckCircle, FiXCircle,
-  FiDollarSign, FiTool, FiTrendingUp, FiTrendingDown, FiInbox,
+  FiDollarSign, FiTool, FiTrendingUp, FiTrendingDown, FiInbox, FiCamera, FiAlertTriangle,
+  FiCalendar, FiExternalLink, FiUser,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import motorcycleService from '../../services/motorcycleService';
@@ -18,10 +19,13 @@ function MotorcycleDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const pictureInputRef = useRef(null);
 
   const [moto, setMoto] = useState(null);
   const [contracts, setContracts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [confirmToggle, setConfirmToggle] = useState(false);
+  const [avatarHover, setAvatarHover] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -45,6 +49,7 @@ function MotorcycleDetail() {
   };
 
   const handleToggleActive = async () => {
+    setConfirmToggle(false);
     try {
       let data;
       if (moto.active) {
@@ -57,6 +62,31 @@ function MotorcycleDetail() {
       setMoto(data);
     } catch {
       toast.error('Erro ao alterar status da moto');
+    }
+  };
+
+  const handleUploadPicture = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      await motorcycleService.uploadPicture(id, file);
+      const data = await motorcycleService.findById(id);
+      setMoto(data);
+      toast.success('Foto enviada com sucesso!');
+    } catch {
+      toast.error('Erro ao enviar foto');
+    }
+    e.target.value = '';
+  };
+
+  const handleDeletePicture = async () => {
+    try {
+      await motorcycleService.deletePicture(id);
+      const data = await motorcycleService.findById(id);
+      setMoto(data);
+      toast.success('Foto removida');
+    } catch {
+      toast.error('Erro ao remover foto');
     }
   };
 
@@ -100,12 +130,64 @@ function MotorcycleDetail() {
         <FiArrowLeft /> Voltar para motos
       </button>
 
+      {/* ── Confirmation Modal ── */}
+      {confirmToggle && (
+        <div className="md-modal-backdrop" onClick={() => setConfirmToggle(false)}>
+          <div className="md-modal" onClick={(e) => e.stopPropagation()}>
+            <div className={`md-modal-icon ${moto.active ? 'warning' : 'success'}`}>
+              <FiAlertTriangle />
+            </div>
+            <h3 className="md-modal-title">
+              {moto.active ? 'Desativar moto?' : 'Ativar moto?'}
+            </h3>
+            <p className="md-modal-body">
+              {moto.active
+                ? `A moto ${moto.brand} ${moto.model} (${moto.plate?.toUpperCase()}) será desativada e não aparecerá como disponível para aluguel.`
+                : `A moto ${moto.brand} ${moto.model} (${moto.plate?.toUpperCase()}) será reativada no sistema.`}
+            </p>
+            <div className="md-modal-actions">
+              <button className="md-modal-btn cancel" onClick={() => setConfirmToggle(false)}>
+                Cancelar
+              </button>
+              <button
+                className={`md-modal-btn confirm ${moto.active ? 'warning' : 'success'}`}
+                onClick={handleToggleActive}
+              >
+                {moto.active ? 'Sim, desativar' : 'Sim, ativar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── Hero ── */}
       <div className="md-hero">
         <div className="md-hero-stripe" style={{ background: statusMeta.stripe }} />
         <div className="md-hero-body">
           <div className="md-hero-main">
-            <div className="md-hero-icon"><FiTruck /></div>
+            <div
+              className="md-hero-avatar-wrap"
+              onMouseEnter={() => setAvatarHover(true)}
+              onMouseLeave={() => setAvatarHover(false)}
+              onClick={() => pictureInputRef.current?.click()}
+            >
+              {moto.pictureUrl
+                ? <img src={moto.pictureUrl} alt={`${moto.brand} ${moto.model}`} className="md-hero-avatar-img" />
+                : <div className="md-hero-avatar-fallback"><FiTruck /></div>}
+              <div className={`md-hero-avatar-overlay ${avatarHover ? 'visible' : ''}`}>
+                <FiCamera />
+                <span>{moto.pictureUrl ? 'Trocar foto' : 'Adicionar'}</span>
+                {moto.pictureUrl && (
+                  <button
+                    className="md-hero-avatar-del"
+                    title="Remover foto"
+                    onClick={(e) => { e.stopPropagation(); handleDeletePicture(); }}
+                  >
+                    <FiTrash2 />
+                  </button>
+                )}
+              </div>
+            </div>
             <div className="md-hero-info">
               <div className="md-hero-title-row">
                 <h1 className="md-hero-title">{moto.brand} {moto.model}</h1>
@@ -121,17 +203,9 @@ function MotorcycleDetail() {
             </div>
           </div>
           <div className="md-hero-actions">
-            <button className="md-action-btn" title="Upload documento" onClick={() => fileInputRef.current?.click()}>
-              <FiUpload /><span>Documento</span>
-            </button>
-            {moto.documentUrl && (
-              <button className="md-action-btn danger" onClick={handleDeleteDocument}>
-                <FiTrash2 /><span>Remover doc</span>
-              </button>
-            )}
             <button
               className={`md-action-btn ${moto.active ? 'warning' : 'success'}`}
-              onClick={handleToggleActive}
+              onClick={() => setConfirmToggle(true)}
             >
               {moto.active ? <FiXCircle /> : <FiCheckCircle />}
               <span>{moto.active ? 'Desativar' : 'Ativar'}</span>
@@ -139,67 +213,49 @@ function MotorcycleDetail() {
             <button className="md-action-btn primary" onClick={() => navigate(`/motos/editar/${id}`)}>
               <FiEdit2 /><span>Editar</span>
             </button>
+            <input ref={pictureInputRef} type="file" accept="image/*" className="upload-input" onChange={handleUploadPicture} />
             <input ref={fileInputRef} type="file" className="upload-input" onChange={handleUploadDocument} />
           </div>
         </div>
       </div>
 
-      {/* ── Info Cards ── */}
-      <div className="md-cards-grid">
-        <div className="md-card">
-          <div className="md-card-header">
-            <FiTruck className="md-card-header-icon" />
-            <h3>Dados da Moto</h3>
-          </div>
-          <div className="md-card-body">
-            <div className="md-spec-row"><span className="md-spec-label">Marca</span><span className="md-spec-value">{moto.brand}</span></div>
-            <div className="md-spec-row"><span className="md-spec-label">Modelo</span><span className="md-spec-value">{moto.model}</span></div>
-            <div className="md-spec-row"><span className="md-spec-label">Placa</span><span className="md-spec-value md-spec-plate">{moto.plate?.toUpperCase()}</span></div>
-            <div className="md-spec-row"><span className="md-spec-label">Ano</span><span className="md-spec-value">{moto.year}</span></div>
-            <div className="md-spec-row"><span className="md-spec-label">Cor</span><span className="md-spec-value">{moto.color}</span></div>
-            <div className="md-spec-row"><span className="md-spec-label">RENAVAM</span><span className="md-spec-value">{moto.renavam}</span></div>
-            <div className="md-spec-row"><span className="md-spec-label">Chassi</span><span className="md-spec-value">{moto.chassis}</span></div>
-            <div className="md-spec-row">
-              <span className="md-spec-label">Quilometragem</span>
-              <span className="md-spec-value">{moto.mileage != null ? `${moto.mileage.toLocaleString('pt-BR')} km` : '—'}</span>
-            </div>
-          </div>
-        </div>
 
-        <div className="md-card">
-          <div className="md-card-header">
-            <FiFileText className="md-card-header-icon" />
-            <h3>Documentação e Status</h3>
+
+      {/* ── Info Cards ── */}
+      <div className="md-card">
+        <div className="md-card-header">
+          <FiTruck className="md-card-header-icon" />
+          <h3>Dados da Moto</h3>
+        </div>
+        <div className="md-card-body">
+          <div className="md-spec-row"><span className="md-spec-label">Marca</span><span className="md-spec-value">{moto.brand}</span></div>
+          <div className="md-spec-row"><span className="md-spec-label">Modelo</span><span className="md-spec-value">{moto.model}</span></div>
+          <div className="md-spec-row"><span className="md-spec-label">Placa</span><span className="md-spec-value md-spec-plate">{moto.plate?.toUpperCase()}</span></div>
+          <div className="md-spec-row"><span className="md-spec-label">Ano</span><span className="md-spec-value">{moto.year}</span></div>
+          <div className="md-spec-row"><span className="md-spec-label">Cor</span><span className="md-spec-value">{moto.color}</span></div>
+          <div className="md-spec-row"><span className="md-spec-label">RENAVAM</span><span className="md-spec-value">{moto.renavam}</span></div>
+          <div className="md-spec-row"><span className="md-spec-label">Chassi</span><span className="md-spec-value">{moto.chassis}</span></div>
+          <div className="md-spec-row">
+            <span className="md-spec-label">Quilometragem</span>
+            <span className="md-spec-value">{moto.mileage != null ? `${moto.mileage.toLocaleString('pt-BR')} km` : '—'}</span>
           </div>
-          <div className="md-card-body">
-            <div className="md-spec-row">
-              <span className="md-spec-label">Documento</span>
-              <span className="md-spec-value">
-                {moto.documentUrl ? (
-                  <a href={moto.documentUrl} target="_blank" rel="noopener noreferrer" className="md-doc-link">
-                    Ver documento
+          <div className="md-spec-row">
+            <span className="md-spec-label">Documento</span>
+            <span className="md-spec-value md-doc-row">
+              {moto.documentUrl ? (
+                <>
+                  <a href={moto.documentUrl} target="_blank" rel="noopener noreferrer" className="md-doc-link-inline">
+                    <FiExternalLink /> Ver PDF
                   </a>
-                ) : (
-                  <span className="md-spec-empty">Não enviado</span>
-                )}
-              </span>
-            </div>
-            <div className="md-spec-row">
-              <span className="md-spec-label">Disponível</span>
-              <span className="md-spec-value">
-                <span className="md-bool-chip" data-bool={moto.available ? 'true' : 'false'}>
-                  {moto.available ? 'Sim' : 'Não'}
-                </span>
-              </span>
-            </div>
-            <div className="md-spec-row">
-              <span className="md-spec-label">Ativa</span>
-              <span className="md-spec-value">
-                <span className="md-bool-chip" data-bool={moto.active ? 'true' : 'false'}>
-                  {moto.active ? 'Sim' : 'Não'}
-                </span>
-              </span>
-            </div>
+                  <button className="md-icon-btn-sm" title="Substituir" onClick={() => fileInputRef.current?.click()}><FiUpload /></button>
+                  <button className="md-icon-btn-sm danger" title="Remover" onClick={handleDeleteDocument}><FiTrash2 /></button>
+                </>
+              ) : (
+                <button className="md-doc-upload-btn" onClick={() => fileInputRef.current?.click()}>
+                  <FiUpload /> Enviar
+                </button>
+              )}
+            </span>
           </div>
         </div>
       </div>
@@ -223,15 +279,24 @@ function MotorcycleDetail() {
                 className="md-contract-item"
                 onClick={() => navigate(`/contratos/${contract.contractId}`)}
               >
+                <div className="md-contract-icon-wrap">
+                  <FiUser />
+                </div>
                 <div className="md-contract-left">
                   <h4 className="md-contract-user">{contract.user?.name}</h4>
-                  <p className="md-contract-sub">
-                    {RENTAL_TYPE_LABELS[contract.rentalType]}
-                    {' · '}{formatDate(contract.startDate)} – {formatDate(contract.endDate)}
-                    {' · '}{formatCurrency(contract.weeklyAmount)}/sem
-                  </p>
+                  <div className="md-contract-meta">
+                    <span className="md-contract-type-badge">{RENTAL_TYPE_LABELS[contract.rentalType]}</span>
+                    <span className="md-contract-dates">
+                      <FiCalendar />
+                      {formatDate(contract.startDate)} → {formatDate(contract.endDate)}
+                    </span>
+                  </div>
                 </div>
                 <div className="md-contract-right">
+                  <div className="md-contract-amount-wrap">
+                    <span className="md-contract-amount">{formatCurrency(contract.weeklyAmount)}</span>
+                    <span className="md-contract-amount-unit">/sem</span>
+                  </div>
                   <span
                     className="md-contract-status"
                     style={{ background: getStatusBgColor(contract.status), color: getStatusColor(contract.status) }}
