@@ -1,25 +1,195 @@
-.contract-form-summary {
-  background: var(--primary-bg);
-  border: 1px solid rgba(255, 195, 14, 0.3);
+/* ── ContractForm — ctr-* namespace ── */
+
+/* Preview card (shown below a select when an option is chosen) */
+.ctr-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
   border-radius: var(--radius);
-  padding: 14px 18px;
-  margin-top: 8px;
-  grid-column: 1 / -1;
+  margin-top: 6px;
+  animation: ctr-fade-in 0.18s ease;
 }
 
-.contract-form-summary h4 {
+@keyframes ctr-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.ctr-preview-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.ctr-preview-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.ctr-preview-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ctr-preview-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.ctr-empty-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  color: var(--warning);
+  margin-top: 6px;
+}
+
+/* ── Rental type toggle ── */
+.ctr-rental-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.ctr-rental-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  background: var(--bg-elevated);
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: left;
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+.ctr-rental-btn:hover {
+  border-color: var(--primary);
+  color: var(--text-primary);
+  background: var(--bg-card);
+}
+
+.ctr-rental-btn.active {
+  border-color: var(--primary);
+  background: var(--primary-bg);
+  color: var(--primary-dark);
+  box-shadow: 0 0 0 3px rgba(255, 195, 14, 0.12);
+}
+
+.ctr-rental-btn svg {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.ctr-rental-label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.ctr-rental-desc {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.ctr-rental-btn.active .ctr-rental-desc {
+  color: var(--primary-dark);
+  opacity: 0.75;
+}
+
+/* ── Summary panel ── */
+.ctr-summary {
+  background: var(--primary-bg);
+  border: 1.5px solid rgba(255, 195, 14, 0.35);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 4px;
+  animation: ctr-fade-in 0.2s ease;
+}
+
+.ctr-summary-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  background: rgba(255, 195, 14, 0.12);
+  border-bottom: 1px solid rgba(255, 195, 14, 0.25);
   font-size: 0.8rem;
   font-weight: 700;
   color: var(--primary-dark);
-  margin-bottom: 6px;
 }
 
-.contract-form-summary p {
+.ctr-summary-body {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+}
+
+.ctr-summary-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 20px;
+  border-right: 1px solid rgba(255, 195, 14, 0.2);
+}
+
+.ctr-summary-row:last-child,
+.ctr-summary-row:nth-child(3) {
+  border-right: none;
+}
+
+.ctr-summary-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  opacity: 0.75;
+}
+
+.ctr-summary-value {
   font-size: 0.85rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.contract-form-summary strong {
-  color: var(--text-primary);
+.ctr-summary-value.highlight {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--primary-dark);
 }
+
+@media (max-width: 768px) {
+  .ctr-rental-toggle { grid-template-columns: 1fr; }
+  .ctr-summary-body  { grid-template-columns: 1fr 1fr; }
+}
+
