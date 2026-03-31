@@ -56,7 +56,6 @@ function CustomerList() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
-  const [filterActive, setFilterActive] = useState('all'); // 'all' | 'with-contract' | 'no-contract'
   const navigate = useNavigate();
 
   useEffect(() => {

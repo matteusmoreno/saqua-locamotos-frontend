@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiMail, FiKey, FiLock, FiEye, FiEyeOff, FiCheckCircle, FiArrowLeft, FiShield } from 'react-icons/fi';
+import { FiMail, FiKey, FiEye, FiEyeOff, FiCheckCircle, FiArrowLeft } from 'react-icons/fi';
 import userService from '../../services/userService';
 import './ForgotPassword.css';
 
