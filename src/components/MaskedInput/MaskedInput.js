@@ -21,20 +21,32 @@ function applyMask(raw, pattern) {
   return result;
 }
 
+// Formats digits as Brazilian currency: 12345 → "123,45", 1234567 → "12.345,67"
+function applyCurrencyMask(raw) {
+  const digits = raw.replace(/\D/g, '').replace(/^0+/, '') || '0';
+  const padded = digits.padStart(3, '0');
+  const intPart = padded.slice(0, -2);
+  const decPart = padded.slice(-2);
+  const intFormatted = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return `${intFormatted},${decPart}`;
+}
+
 function MaskedInput({ mask, value, onChange, name, ...rest }) {
-  const pattern = MASKS[mask] || mask;
+  const isCurrency = mask === 'currency';
+  const pattern = !isCurrency ? (MASKS[mask] || mask) : null;
 
   const handleChange = useCallback(
     (e) => {
-      const masked = applyMask(e.target.value, pattern);
-      // Build a synthetic-like event so parent onChange works normally
+      const masked = isCurrency
+        ? applyCurrencyMask(e.target.value)
+        : applyMask(e.target.value, pattern);
       if (onChange) {
         onChange({
           target: { name: name || e.target.name, value: masked },
         });
       }
     },
-    [onChange, pattern, name],
+    [onChange, pattern, name, isCurrency],
   );
 
   return (

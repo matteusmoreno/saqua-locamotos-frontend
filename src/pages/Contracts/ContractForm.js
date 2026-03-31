@@ -5,6 +5,7 @@ import {
   FiDollarSign, FiSave, FiRepeat, FiHash, FiPhone, FiAlertCircle,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import MaskedInput from '../../components/MaskedInput/MaskedInput';
 import userService from '../../services/userService';
 import motorcycleService from '../../services/motorcycleService';
 import contractService from '../../services/contractService';
@@ -67,10 +68,11 @@ function ContractForm() {
     e.preventDefault();
     setLoading(true);
     try {
+      const parseBRL = (v) => parseFloat((v || '0').replace(/\./g, '').replace(',', '.'));
       const payload = {
         ...form,
-        depositAmount: parseFloat(form.depositAmount),
-        weeklyAmount: parseFloat(form.weeklyAmount),
+        depositAmount: parseBRL(form.depositAmount),
+        weeklyAmount: parseBRL(form.weeklyAmount),
       };
       const data = await contractService.create(payload);
       toast.success('Contrato criado com sucesso!');
@@ -264,14 +266,13 @@ function ContractForm() {
                 <label>Valor semanal (R$) <span className="cf-required">*</span></label>
                 <div className="cf-input-wrap">
                   <FiDollarSign className="cf-input-icon" />
-                  <input
-                    type="number"
+                  <MaskedInput
+                    mask="currency"
                     name="weeklyAmount"
                     value={form.weeklyAmount}
                     onChange={handleChange}
                     placeholder="0,00"
-                    step="0.01"
-                    min="0"
+                    inputMode="numeric"
                     required
                   />
                 </div>
@@ -282,14 +283,13 @@ function ContractForm() {
                 <label>Valor do caução (R$) <span className="cf-required">*</span></label>
                 <div className="cf-input-wrap cf-short" style={{ maxWidth: 240 }}>
                   <FiDollarSign className="cf-input-icon" />
-                  <input
-                    type="number"
+                  <MaskedInput
+                    mask="currency"
                     name="depositAmount"
                     value={form.depositAmount}
                     onChange={handleChange}
                     placeholder="0,00"
-                    step="0.01"
-                    min="0"
+                    inputMode="numeric"
                     required
                   />
                 </div>
@@ -324,11 +324,11 @@ function ContractForm() {
               </div>
               <div className="ctr-summary-row">
                 <span className="ctr-summary-label">Semanal</span>
-                <span className="ctr-summary-value highlight">{formatCurrency(parseFloat(form.weeklyAmount))}</span>
+                <span className="ctr-summary-value highlight">{formatCurrency(parseFloat((form.weeklyAmount || '0').replace(/\./g, '').replace(',', '.')))}</span>
               </div>
               <div className="ctr-summary-row">
                 <span className="ctr-summary-label">Caução</span>
-                <span className="ctr-summary-value">{formatCurrency(parseFloat(form.depositAmount))}</span>
+                <span className="ctr-summary-value">{formatCurrency(parseFloat((form.depositAmount || '0').replace(/\./g, '').replace(',', '.')))}</span>
               </div>
             </div>
           </div>
